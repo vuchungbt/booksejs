@@ -1,0 +1,157 @@
+<!-- Admin Books List Page -->
+<div class="container-fluid">
+  <div class="d-flex justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Quản lý sách</h1>
+    <a href="/admin/books/add" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Thêm sách mới
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+    </div>
+    <div class="card-body">
+      <form action="/admin/books" method="GET" class="row">
+        <div class="col-md-4 mb-3">
+          <label for="category">Danh mục</label>
+          <select name="category" id="category" class="form-control">
+            <option value="">Tất cả danh mục</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat._id %>" <%= category === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="search">Tìm kiếm</label>
+          <input type="text" name="search" id="search" class="form-control" placeholder="Nhập tiêu đề sách..." value="<%= search %>">
+        </div>
+        <div class="col-md-2 d-flex align-items-end mb-3">
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fas fa-search"></i> Tìm kiếm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Books Table -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Danh sách sách</h6>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th width="70">Ảnh</th>
+              <th>Tiêu đề</th>
+              <th>Tác giả</th>
+              <th>Danh mục</th>
+              <th>Giá</th>
+              <th>Kho</th>
+              <th>Nổi bật</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (books.length === 0) { %>
+              <tr>
+                <td colspan="8" class="text-center">Không có sách nào</td>
+              </tr>
+            <% } else { %>
+              <% books.forEach(book => { %>
+                <tr>
+                  <td>
+                    <img src="<%= book.cover %>" alt="<%= book.title %>" width="50" height="70" class="img-thumbnail">
+                  </td>
+                  <td>
+                    <%= book.title %>
+                    <% if (book.discount > 0) { %>
+                      <span class="badge badge-danger">-<%= book.discount %>%</span>
+                    <% } %>
+                  </td>
+                  <td><%= book.author ? book.author.name : 'Không xác định' %></td>
+                  <td><%= book.category ? book.category.name : 'Không xác định' %></td>
+                  <td><%= book.price.toLocaleString('vi-VN') %>đ</td>
+                  <td>
+                    <% if (book.stock > 10) { %>
+                      <span class="badge badge-success"><%= book.stock %></span>
+                    <% } else if (book.stock > 0) { %>
+                      <span class="badge badge-warning"><%= book.stock %></span>
+                    <% } else { %>
+                      <span class="badge badge-danger">Hết hàng</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (book.featured) { %>
+                      <span class="badge badge-primary">Có</span>
+                    <% } else { %>
+                      <span class="badge badge-secondary">Không</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a href="/books/<%= book.slug %>" target="_blank" class="btn btn-info btn-sm">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/admin/books/edit/<%= book._id %>" class="btn btn-warning btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/admin/books/<%= book._id %>?_method=DELETE" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa sách này?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if (books.length > 0) { %>
+        <div class="d-flex justify-content-center mt-4">
+          <nav aria-label="Page navigation">
+            <ul class="pagination">
+              <% if (currentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="/admin/books?page=1&category=<%= category %>&search=<%= search %>" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="/admin/books?page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+              <% } %>
+
+              <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="/admin/books?page=<%= i %>&category=<%= category %>&search=<%= search %>"><%= i %></a>
+                </li>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="/admin/books?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="/admin/books?page=<%= totalPages %>&category=<%= category %>&search=<%= search %>" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                  </a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div> 

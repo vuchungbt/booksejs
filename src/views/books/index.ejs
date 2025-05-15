@@ -1,0 +1,215 @@
+<!-- Page Header -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h1 class="display-5 fw-bold">Danh sách sách</h1>
+    <p class="lead">Khám phá bộ sưu tập sách đa dạng của chúng tôi</p>
+  </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Filter Sidebar -->
+      <div class="col-lg-3 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Tìm kiếm</h5>
+            <form action="/books" method="GET" id="searchForm">
+              <div class="mb-3">
+                <input type="text" class="form-control" name="search" value="<%= search %>" placeholder="Tên sách...">
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Lọc sách</h5>
+            <form action="/books" method="GET" id="filterForm">
+              <!-- Preserve search query if exists -->
+              <% if(search) { %>
+                <input type="hidden" name="search" value="<%= search %>">
+              <% } %>
+              
+              <div class="mb-3">
+                <label class="form-label">Danh mục</label>
+                <select class="form-select" name="category" id="categoryFilter">
+                  <option value="">Tất cả danh mục</option>
+                  <% categories.forEach(function(cat) { %>
+                    <option value="<%= cat._id %>" <%= category === cat._id.toString() ? 'selected' : '' %>>
+                      <%= cat.name %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Tác giả</label>
+                <select class="form-select" name="author" id="authorFilter">
+                  <option value="">Tất cả tác giả</option>
+                  <% authors.forEach(function(auth) { %>
+                    <option value="<%= auth._id %>" <%= author === auth._id.toString() ? 'selected' : '' %>>
+                      <%= auth.name %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Khoảng giá</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <input type="number" class="form-control" name="minPrice" value="<%= minPrice %>" placeholder="Từ" min="0">
+                  </div>
+                  <div class="col-6">
+                    <input type="number" class="form-control" name="maxPrice" value="<%= maxPrice %>" placeholder="Đến" min="0">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary w-100">Áp dụng bộ lọc</button>
+              </div>
+              
+              <div class="text-center">
+                <a href="/books" class="btn btn-link">Xóa bộ lọc</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Books Grid -->
+      <div class="col-lg-9">
+        <!-- Sort Options -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <p class="mb-0"><strong>Tìm thấy <%= books.length %> sách</strong></p>
+          <div class="d-flex align-items-center">
+            <label class="me-2 text-nowrap">Sắp xếp theo:</label>
+            <select class="form-select form-select-sm w-auto" id="sortSelector">
+              <option value="" <%= sort === '' ? 'selected' : '' %>>Mới nhất</option>
+              <option value="price-asc" <%= sort === 'price-asc' ? 'selected' : '' %>>Giá tăng dần</option>
+              <option value="price-desc" <%= sort === 'price-desc' ? 'selected' : '' %>>Giá giảm dần</option>
+              <option value="name-asc" <%= sort === 'name-asc' ? 'selected' : '' %>>Tên A-Z</option>
+              <option value="name-desc" <%= sort === 'name-desc' ? 'selected' : '' %>>Tên Z-A</option>
+              <option value="rating-desc" <%= sort === 'rating-desc' ? 'selected' : '' %>>Đánh giá cao nhất</option>
+            </select>
+          </div>
+        </div>
+        
+        <% if(books.length === 0) { %>
+          <div class="alert alert-info">
+            <p class="mb-0">Không tìm thấy sách phù hợp với điều kiện tìm kiếm.</p>
+          </div>
+        <% } else { %>
+          <!-- Books -->
+          <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <% books.forEach(function(book) { %>
+              <div class="col">
+                <div class="card book-card h-100">
+                  <div class="position-relative">
+                    <img src="<%= book.cover %>" class="card-img-top" alt="<%= book.title %>">
+                    <% if(book.discount > 0) { %>
+                      <span class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">-<%= book.discount %>%</span>
+                    <% } %>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title"><a href="/books/<%= book.slug %>"><%= book.title %></a></h5>
+                    <p class="card-author mb-2"><%= book.author ? book.author.name : 'Unknown Author' %></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="card-price"><%= Math.round(book.price * (1 - book.discount/100)).toLocaleString('vi-VN') %>đ</span>
+                        <% if(book.discount > 0) { %>
+                          <span class="card-price-old"><%= book.price.toLocaleString('vi-VN') %>đ</span>
+                        <% } %>
+                      </div>
+                      <div class="rating">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                          <% if(i <= Math.round(book.avgRating)) { %>
+                            <i class="fas fa-star"></i>
+                          <% } else { %>
+                            <i class="far fa-star"></i>
+                          <% } %>
+                        <% } %>
+                        <% if (book.numReviews > 0) { %>
+                          <small class="text-muted">(<%= book.numReviews %>)</small>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                    <a href="/books/<%= book.slug %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                    <form action="/cart/add/<%= book._id %>" method="POST">
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+        
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+              <% if (currentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="/books?page=<%= currentPage - 1 %><%= search ? `&search=${search}` : '' %><%= category ? `&category=${category}` : '' %><%= author ? `&author=${author}` : '' %><%= minPrice ? `&minPrice=${minPrice}` : '' %><%= maxPrice ? `&maxPrice=${maxPrice}` : '' %><%= sort ? `&sort=${sort}` : '' %>">
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                </li>
+              <% } %>
+              
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="/books?page=<%= i %><%= search ? `&search=${search}` : '' %><%= category ? `&category=${category}` : '' %><%= author ? `&author=${author}` : '' %><%= minPrice ? `&minPrice=${minPrice}` : '' %><%= maxPrice ? `&maxPrice=${maxPrice}` : '' %><%= sort ? `&sort=${sort}` : '' %>">
+                    <%= i %>
+                  </a>
+                </li>
+              <% } %>
+              
+              <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="/books?page=<%= currentPage + 1 %><%= search ? `&search=${search}` : '' %><%= category ? `&category=${category}` : '' %><%= author ? `&author=${author}` : '' %><%= minPrice ? `&minPrice=${minPrice}` : '' %><%= maxPrice ? `&maxPrice=${maxPrice}` : '' %><%= sort ? `&sort=${sort}` : '' %>">
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Category and author filter change
+    const categoryFilter = document.getElementById('categoryFilter');
+    const authorFilter = document.getElementById('authorFilter');
+    
+    // Sort selector change
+    const sortSelector = document.getElementById('sortSelector');
+    sortSelector.addEventListener('change', function() {
+      // Get current URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Update sort parameter
+      if (this.value) {
+        urlParams.set('sort', this.value);
+      } else {
+        urlParams.delete('sort');
+      }
+      
+      // Redirect with new params
+      window.location.href = '/books?' + urlParams.toString();
+    });
+  });
+</script> 

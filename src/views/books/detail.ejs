@@ -1,0 +1,421 @@
+<!-- Book Details -->
+<section class="py-5">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="/books">Sách</a></li>
+        <% if (book.category) { %>
+          <li class="breadcrumb-item"><a href="/books?category=<%= book.category._id %>"><%= book.category.name %></a></li>
+        <% } %>
+        <li class="breadcrumb-item active" aria-current="page"><%= book.title %></li>
+      </ol>
+    </nav>
+
+    <div class="row">
+      <!-- Book Images Gallery -->
+      <div class="col-md-4 mb-4 mb-md-0">
+        <div class="position-relative mb-3">
+          <img src="<%= book.images && book.images.length > 0 ? book.images[0] : book.cover %>" 
+               alt="<%= book.title %>" 
+               class="img-fluid rounded shadow-sm main-book-image" 
+               id="main-book-image">
+          <% if(book.discount > 0) { %>
+            <span class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill fs-6">-<%= book.discount %>%</span>
+          <% } %>
+          <% if(new Date() - new Date(book.createdAt) < 7 * 24 * 60 * 60 * 1000) { %>
+            <span class="position-absolute top-0 end-0 bg-success text-white py-1 px-2 m-2 rounded-pill fs-6">Mới</span>
+          <% } %>
+        </div>
+        
+        <!-- Thumbnail images -->
+        <div class="row g-2">
+          <% 
+            // Use images array if it exists, otherwise create an array with just the cover
+            const allImages = book.images && book.images.length > 0 ? book.images : [book.cover];
+            // Limit to 4 images max
+            const displayImages = allImages.slice(0, 4);
+          %>
+          <% displayImages.forEach((image, index) => { %>
+            <div class="col-3">
+              <div class="book-thumbnail-container">
+                <img 
+                  src="<%= image %>" 
+                  alt="<%= book.title %> - Ảnh <%= index + 1 %>" 
+                  class="book-thumbnail <%= index === 0 ? 'active' : '' %>" 
+                  onclick="changeMainImage('<%= image %>', this)"
+                >
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+      
+      <!-- Book Info -->
+      <div class="col-md-8">
+        <h1 class="mb-2"><%= book.title %></h1>
+        
+        <div class="d-flex align-items-center mb-3">
+          <div class="rating me-2">
+            <% for(let i = 1; i <= 5; i++) { %>
+              <% if(i <= Math.round(book.avgRating)) { %>
+                <i class="fas fa-star text-warning"></i>
+              <% } else { %>
+                <i class="far fa-star text-warning"></i>
+              <% } %>
+            <% } %>
+          </div>
+          <div class="text-muted">
+            <% if (book.numReviews > 0) { %>
+              <%= book.avgRating.toFixed(1) %> (<%= book.numReviews %> đánh giá)
+            <% } else { %>
+              Chưa có đánh giá
+            <% } %>
+          </div>
+        </div>
+        
+        <p class="text-muted mb-3">
+          Tác giả: 
+          <% if (book.author) { %>
+            <a href="/authors/<%= book.author._id %>"><%= book.author.name %></a>
+          <% } else { %>
+            Không xác định
+          <% } %> | 
+          NXB: <%= book.publisher %> | 
+          ISBN: <%= book.isbn %>
+        </p>
+        
+        <div class="card border-0 bg-light p-3 mb-4">
+          <div class="d-flex align-items-center">
+            <div class="me-3">
+              <% if(book.discount > 0) { %>
+                <h3 class="text-danger mb-0"><%= Math.round(book.price * (1 - book.discount/100)).toLocaleString('vi-VN') %>đ</h3>
+                <p class="mb-0"><s class="text-muted"><%= book.price.toLocaleString('vi-VN') %>đ</s></p>
+              <% } else { %>
+                <h3 class="mb-0"><%= book.price.toLocaleString('vi-VN') %>đ</h3>
+              <% } %>
+            </div>
+            
+            <div class="stock-info ms-auto me-3">
+              <% if(book.stock > 0) { %>
+                <span class="badge bg-success">Còn hàng</span>
+              <% } else { %>
+                <span class="badge bg-danger">Hết hàng</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <form action="/cart/add/<%= book._id %>" method="POST" class="mb-4">
+          <div class="row">
+            <div class="col-md-4 mb-3 mb-md-0">
+              <div class="input-group">
+                <button type="button" class="btn btn-outline-secondary" id="decrement">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" class="form-control text-center" name="quantity" id="quantity" value="1" min="1" max="<%= book.stock %>">
+                <button type="button" class="btn btn-outline-secondary" id="increment">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <button type="submit" class="btn btn-primary w-100 mb-2" <%= book.stock === 0 ? 'disabled' : '' %>>
+                <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ hàng
+              </button>
+            </div>
+          </div>
+        </form>
+        
+        <div class="book-meta mb-4">
+          <table class="table table-sm table-borderless">
+            <tr>
+              <td style="width: 40%">Số trang:</td>
+              <td><%= book.pages %></td>
+            </tr>
+            <tr>
+              <td>Ngày xuất bản:</td>
+              <td><%= new Date(book.publicationDate).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+            </tr>
+            <tr>
+              <td>Danh mục:</td>
+              <td>
+                <% if (book.category) { %>
+                  <a href="/books?category=<%= book.category._id %>"><%= book.category.name %></a>
+                <% } else { %>
+                  Không xác định
+                <% } %>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tabs Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <ul class="nav nav-tabs" id="bookTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">
+              Mô tả
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
+              Đánh giá (<%= book.numReviews %>)
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content p-4 border border-top-0 rounded-bottom" id="bookTabsContent">
+          <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+            <div class="book-description">
+              <%= book.description %>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+            <% if (book.ratings.length === 0) { %>
+              <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                <h5>Chưa có đánh giá cho sách này</h5>
+                <p>Hãy là người đầu tiên đánh giá sách này</p>
+              </div>
+            <% } else { %>
+              <div class="reviews-list mb-4">
+                <% book.ratings.forEach(function(rating) { %>
+                  <div class="review-item p-3 border-bottom">
+                    <div class="d-flex mb-2">
+                      <div class="me-3">
+                        <img src="<%= rating.user.avatar %>" alt="<%= rating.user.name %>" class="rounded-circle" width="40" height="40">
+                      </div>
+                      <div>
+                        <h5 class="mb-0"><%= rating.user.name %></h5>
+                        <div class="d-flex align-items-center">
+                          <div class="rating me-2">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                              <% if(i <= rating.rating) { %>
+                                <i class="fas fa-star text-warning"></i>
+                              <% } else { %>
+                                <i class="far fa-star text-warning"></i>
+                              <% } %>
+                            <% } %>
+                          </div>
+                          <small class="text-muted">
+                            <%= new Date(rating.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="mb-0"><%= rating.comment %></p>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+            
+            <!-- Add Review Form -->
+            <% if (locals.user) { %>
+              <div class="add-review mt-4">
+                <h4 class="mb-3">Thêm đánh giá</h4>
+                <form action="/books/<%= book._id %>/reviews" method="POST">
+                  <div class="mb-3">
+                    <label for="rating" class="form-label">Đánh giá</label>
+                    <div class="star-rating">
+                      <div class="star-input">
+                        <input type="radio" name="rating" id="rating-5" value="5">
+                        <label for="rating-5" class="fas fa-star"></label>
+                        <input type="radio" name="rating" id="rating-4" value="4">
+                        <label for="rating-4" class="fas fa-star"></label>
+                        <input type="radio" name="rating" id="rating-3" value="3">
+                        <label for="rating-3" class="fas fa-star"></label>
+                        <input type="radio" name="rating" id="rating-2" value="2">
+                        <label for="rating-2" class="fas fa-star"></label>
+                        <input type="radio" name="rating" id="rating-1" value="1">
+                        <label for="rating-1" class="fas fa-star"></label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="comment" class="form-label">Nhận xét</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                </form>
+              </div>
+            <% } else { %>
+              <div class="alert alert-info">
+                <p class="mb-0">Vui lòng <a href="/auth/login">đăng nhập</a> để viết đánh giá.</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Books -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h3 class="mb-4">Sách cùng danh mục</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      <% relatedBooks.forEach(function(relatedBook) { %>
+        <div class="col">
+          <div class="card book-card h-100">
+            <div class="position-relative book-card-img-container">
+              <img src="<%= relatedBook.cover %>" class="card-img-top book-card-img" alt="<%= relatedBook.title %>">
+              <% if(relatedBook.discount > 0) { %>
+                <span class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">-<%= relatedBook.discount %>%</span>
+              <% } %>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title"><a href="/books/<%= relatedBook.slug %>"><%= relatedBook.title %></a></h5>
+              <p class="card-author mb-2">
+                <% if (relatedBook.author) { %>
+                  <a href="/authors/<%= relatedBook.author._id %>"><%= relatedBook.author.name %></a>
+                <% } else { %>
+                  Tác giả không xác định
+                <% } %>
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <% if(relatedBook.discount > 0) { %>
+                  <div>
+                    <span class="text-decoration-line-through text-muted"><%= relatedBook.price.toLocaleString('vi-VN') %>đ</span>
+                    <span class="fw-bold text-danger"><%= (relatedBook.price * (1 - relatedBook.discount/100)).toLocaleString('vi-VN') %>đ</span>
+                  </div>
+                <% } else { %>
+                  <span class="fw-bold"><%= relatedBook.price.toLocaleString('vi-VN') %>đ</span>
+                <% } %>
+                <a href="/cart/add/<%= relatedBook._id %>" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-shopping-cart"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Main book image */
+  .main-book-image {
+    width: 100%;
+    height: 400px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  /* Thumbnail images */
+  .book-thumbnail-container {
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  .book-thumbnail {
+    width: 100%;
+    height: 80px;
+    object-fit: contain;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+  }
+  
+  .book-thumbnail.active {
+    border: 2px solid #0d6efd;
+  }
+  
+  /* Related book images */
+  .book-card-img-container {
+    height: 250px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+  }
+  
+  .book-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Star rating system */
+  .star-rating .star-input {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 1.5rem;
+    justify-content: flex-end;
+    padding: 0 0.2em;
+    text-align: center;
+    width: 5em;
+  }
+
+  .star-rating .star-input input {
+    display: none;
+  }
+
+  .star-rating .star-input label {
+    color: lightgrey;
+    cursor: pointer;
+  }
+
+  .star-rating .star-input :checked ~ label {
+    color: gold;
+  }
+
+  .star-rating .star-input label:hover,
+  .star-rating .star-input label:hover ~ label {
+    color: gold;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Quantity buttons
+    const decrementBtn = document.getElementById('decrement');
+    const incrementBtn = document.getElementById('increment');
+    const quantityInput = document.getElementById('quantity');
+    
+    decrementBtn.addEventListener('click', function() {
+      let currentValue = parseInt(quantityInput.value);
+      if (currentValue > 1) {
+        quantityInput.value = currentValue - 1;
+      }
+    });
+    
+    incrementBtn.addEventListener('click', function() {
+      let currentValue = parseInt(quantityInput.value);
+      let maxValue = parseInt(quantityInput.getAttribute('max'));
+      if (currentValue < maxValue) {
+        quantityInput.value = currentValue + 1;
+      }
+    });
+  });
+  
+  // Change main image when thumbnail is clicked
+  function changeMainImage(imageSrc, thumbElement) {
+    const mainImage = document.getElementById('main-book-image');
+    mainImage.src = imageSrc;
+    
+    // Update active thumbnail
+    const thumbnails = document.querySelectorAll('.book-thumbnail');
+    thumbnails.forEach(thumb => {
+      thumb.classList.remove('active');
+    });
+    
+    // Add active class to clicked thumbnail
+    if(thumbElement) {
+      thumbElement.classList.add('active');
+    }
+  }
+</script> 

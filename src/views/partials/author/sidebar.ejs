@@ -1,0 +1,42 @@
+<div class="author-sidebar">
+  <div class="sidebar-header">
+    <a href="/author" class="sidebar-brand">
+      <i class="fas fa-book-open"></i>
+      <span>Tác giả</span>
+    </a>
+  </div>
+  
+  <div class="sidebar-nav">
+    <a href="/author" class="sidebar-item <%= title === 'Bảng điều khiển tác giả' ? 'active' : '' %>">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Tổng quan</span>
+    </a>
+    
+    <a href="/author/books" class="sidebar-item <%= title.includes('Sách của tôi') ? 'active' : '' %>">
+      <i class="fas fa-book"></i>
+      <span>Sách của tôi</span>
+    </a>
+    
+    <a href="/author/profile" class="sidebar-item <%= title === 'Hồ sơ tác giả' ? 'active' : '' %>">
+      <i class="fas fa-user-edit"></i>
+      <span>Hồ sơ tác giả</span>
+    </a>
+    
+    <div class="sidebar-heading">Liên kết</div>
+    
+    <a href="/authors/<%= user.id %>" class="sidebar-item" target="_blank">
+      <i class="fas fa-eye"></i>
+      <span>Trang cá nhân</span>
+    </a>
+    
+    <a href="/" class="sidebar-item">
+      <i class="fas fa-home"></i>
+      <span>Về trang chủ</span>
+    </a>
+    
+    <a href="/auth/logout" class="sidebar-item">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Đăng xuất</span>
+    </a>
+  </div>
+</div> 

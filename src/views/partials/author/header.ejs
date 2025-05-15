@@ -1,0 +1,31 @@
+<header class="author-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1 class="h5 mb-0"><%= title %></h1>
+    
+    <div class="d-flex align-items-center">
+      <div class="dropdown">
+        <button class="btn dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="<%= user.avatar || '/images/books/default-book.png' %>" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
+          <span><%= user.name %></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+          <li>
+            <a class="dropdown-item" href="/">
+              <i class="fas fa-home me-2"></i> Trang chủ
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/authors/<%= user.id %>">
+              <i class="fas fa-user me-2"></i> Trang cá nhân
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/auth/logout">
+              <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header> 

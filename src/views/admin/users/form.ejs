@@ -1,0 +1,98 @@
+<!-- Admin User Form -->
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <div class="d-flex justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><%= user ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới' %></h1>
+    <a href="/admin/users" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+  </div>
+
+  <!-- User Form Card -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary"><%= user ? 'Chỉnh sửa thông tin' : 'Thêm mới' %></h6>
+    </div>
+    <div class="card-body">
+      <form action="<%= user ? `/admin/users/${user._id}?_method=PUT` : '/admin/users' %>" method="POST">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name">Họ tên</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="name" 
+              name="name" 
+              value="<%= user ? user.name : '' %>" 
+              required
+            >
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              name="email" 
+              value="<%= user ? user.email : '' %>" 
+              required
+            >
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="password"><%= user ? 'Mật khẩu (để trống nếu không thay đổi)' : 'Mật khẩu' %></label>
+            <input 
+              type="password" 
+              class="form-control" 
+              id="password" 
+              name="password" 
+              <%= user ? '' : 'required' %>
+              minlength="6"
+            >
+            <% if (user) { %>
+              <small class="text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
+            <% } %>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="role">Vai trò</label>
+            <select class="form-control" id="role" name="role" required>
+              <option value="customer" <%= user && user.role === 'customer' ? 'selected' : '' %>>Khách hàng</option>
+              <option value="author" <%= user && user.role === 'author' ? 'selected' : '' %>>Tác giả</option>
+              <option value="admin" <%= user && user.role === 'admin' ? 'selected' : '' %>>Quản trị viên</option>
+            </select>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="phone">Số điện thoại</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="phone" 
+              name="phone" 
+              value="<%= user && user.phone ? user.phone : '' %>"
+            >
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="address">Địa chỉ</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="address" 
+              name="address" 
+              value="<%= user && user.address ? user.address : '' %>"
+            >
+          </div>
+        </div>
+        
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-save"></i> <%= user ? 'Cập nhật' : 'Thêm mới' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

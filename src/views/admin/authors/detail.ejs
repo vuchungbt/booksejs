@@ -1,0 +1,158 @@
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0">Chi tiết tác giả</h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/admin">Quản trị</a></li>
+        <li class="breadcrumb-item"><a href="/admin/authors">Tác giả</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= author.name %></li>
+      </ol>
+    </nav>
+  </div>
+  
+  <div class="d-flex gap-2">
+    <a href="/admin/authors/edit/<%= author._id %>" class="btn btn-warning">
+      <i class="fas fa-edit me-1"></i> Chỉnh sửa
+    </a>
+    <a href="/authors/<%= author._id %>" class="btn btn-outline-primary" target="_blank">
+      <i class="fas fa-eye me-1"></i> Xem trang công khai
+    </a>
+  </div>
+</div>
+
+<!-- Author Profile -->
+<div class="row">
+  <!-- Left Column: Author Info -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body text-center">
+        <img src="<%= author.avatar || '/images/books/default-book.png' %>" alt="<%= author.name %>" class="rounded-circle img-fluid mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+        <h4 class="card-title mb-1"><%= author.name %></h4>
+        <p class="text-muted mb-3"><%= author.email %></p>
+        
+        <div class="d-flex justify-content-center mb-3">
+          <% if(author.socialLinks && author.socialLinks.facebook) { %>
+            <a href="<%= author.socialLinks.facebook %>" class="btn btn-outline-primary mx-1" target="_blank">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+          <% } %>
+          <% if(author.socialLinks && author.socialLinks.twitter) { %>
+            <a href="<%= author.socialLinks.twitter %>" class="btn btn-outline-info mx-1" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          <% } %>
+          <% if(author.socialLinks && author.socialLinks.instagram) { %>
+            <a href="<%= author.socialLinks.instagram %>" class="btn btn-outline-danger mx-1" target="_blank">
+              <i class="fab fa-instagram"></i>
+            </a>
+          <% } %>
+          <% if(author.socialLinks && author.socialLinks.website) { %>
+            <a href="<%= author.socialLinks.website %>" class="btn btn-outline-dark mx-1" target="_blank">
+              <i class="fas fa-globe"></i>
+            </a>
+          <% } %>
+        </div>
+        
+        <hr>
+        
+        <div class="text-start">
+          <p><strong>Tài khoản tạo:</strong> <%= new Date(author.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+          <p><strong>Số điện thoại:</strong> <%= author.phone || 'Chưa cập nhật' %></p>
+          <p><strong>Địa chỉ:</strong> <%= author.address || 'Chưa cập nhật' %></p>
+          <p><strong>Học vấn:</strong> <%= author.education || 'Chưa cập nhật' %></p>
+          
+          <% if(author.expertise && author.expertise.length > 0) { %>
+            <p><strong>Chuyên môn:</strong></p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <% author.expertise.forEach(skill => { %>
+                <span class="badge bg-light text-dark"><%= skill %></span>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Right Column: Bio and Books -->
+  <div class="col-md-8">
+    <!-- Bio Section -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">Giới thiệu</h5>
+      </div>
+      <div class="card-body">
+        <% if(author.bio) { %>
+          <% 
+            // Split bio by paragraphs and display each paragraph
+            const paragraphs = author.bio.split('\n').filter(p => p.trim() !== '');
+          %>
+          <% paragraphs.forEach(paragraph => { %>
+            <p><%= paragraph %></p>
+          <% }) %>
+        <% } else { %>
+          <p class="text-muted">Tác giả chưa cập nhật thông tin giới thiệu.</p>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Books Section -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Sách của tác giả</h5>
+        <a href="/admin/books?author=<%= author._id %>" class="btn btn-sm btn-outline-primary">Xem tất cả (<%= bookCount %>)</a>
+      </div>
+      <div class="card-body">
+        <% if(books.length === 0) { %>
+          <div class="text-center py-4">
+            <div class="text-muted">
+              <i class="fas fa-book fa-3x mb-3"></i>
+              <p>Tác giả chưa có sách nào</p>
+              <a href="/admin/books/add" class="btn btn-sm btn-primary mt-2">Thêm sách mới</a>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th width="70">Ảnh</th>
+                  <th>Tên sách</th>
+                  <th>Danh mục</th>
+                  <th>Giá</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% books.forEach(book => { %>
+                  <tr>
+                    <td>
+                      <img src="<%= book.cover %>" alt="<%= book.title %>" width="50" height="70" style="object-fit: cover;" class="shadow-sm">
+                    </td>
+                    <td>
+                      <strong><%= book.title %></strong>
+                    </td>
+                    <td>
+                      <% if(book.category) { %>
+                        <span class="badge bg-info"><%= book.category.name %></span>
+                      <% } else { %>
+                        <span class="badge bg-secondary">Chưa phân loại</span>
+                      <% } %>
+                    </td>
+                    <td><%= book.price.toLocaleString('vi-VN') %>đ</td>
+                    <td>
+                      <a href="/admin/books/<%= book._id %>" class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div> 

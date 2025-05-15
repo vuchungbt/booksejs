@@ -1,0 +1,29 @@
+{
+  "name": "book-store",
+  "version": "1.0.0",
+  "description": "Website bán sách sử dụng Express, EJS và MongoDB",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --no-deprecation src/app.js",
+    "dev": "nodemon --no-deprecation src/app.js",
+    "seed": "node --no-deprecation src/seeds/index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.3",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.0.1",
+    "multer": "^1.4.5-lts.1",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,214 @@
+<!-- Admin Settings Page -->
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Cài đặt hệ thống</h1>
+  </div>
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
+            <i class="fas fa-globe me-1"></i> Cài đặt chung
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="footer-tab" data-bs-toggle="tab" data-bs-target="#footer" type="button" role="tab" aria-controls="footer" aria-selected="false">
+            <i class="fas fa-shoe-prints me-1"></i> Footer
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab" aria-controls="social" aria-selected="false">
+            <i class="fas fa-share-alt me-1"></i> Mạng xã hội
+          </button>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="card-body">
+      <form action="/admin/settings" method="POST" enctype="multipart/form-data">
+        <div class="tab-content" id="settingsTabsContent">
+          <!-- General Settings Tab -->
+          <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+            <div class="mb-4">
+              <h5 class="text-primary">Thông tin chung</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="siteName" class="form-label">Tên trang web</label>
+                    <input type="text" class="form-control" id="siteName" name="siteName" value="<%= settings.siteName %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="siteDescription" class="form-label">Mô tả trang web</label>
+                    <textarea class="form-control" id="siteDescription" name="siteDescription" rows="3"><%= settings.siteDescription %></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <h5 class="text-primary mt-4">Logo và Favicon</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="logo" class="form-label">Logo trang web</label>
+                    <div class="input-group mb-3">
+                      <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                      <label class="input-group-text" for="logo">Tải lên</label>
+                    </div>
+                    <% if (settings.logoPath) { %>
+                      <div class="mt-2">
+                        <img src="<%= settings.logoPath %>" alt="Current Logo" class="img-thumbnail" style="max-height: 50px;">
+                        <small class="d-block text-muted">Logo hiện tại</small>
+                      </div>
+                    <% } %>
+                    <small class="form-text text-muted">Khuyến nghị: Kích thước 200x80px, định dạng PNG</small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="favicon" class="form-label">Favicon (icon trình duyệt)</label>
+                    <div class="input-group mb-3">
+                      <input type="file" class="form-control" id="favicon" name="favicon" accept="image/x-icon,image/png,image/ico">
+                      <label class="input-group-text" for="favicon">Tải lên</label>
+                    </div>
+                    <% if (settings.faviconPath) { %>
+                      <div class="mt-2">
+                        <img src="<%= settings.faviconPath %>" alt="Current Favicon" class="img-thumbnail" style="max-height: 32px;">
+                        <small class="d-block text-muted">Favicon hiện tại</small>
+                      </div>
+                    <% } %>
+                    <small class="form-text text-muted">Khuyến nghị: Kích thước 32x32px, định dạng ICO hoặc PNG</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer Settings Tab -->
+          <div class="tab-pane fade" id="footer" role="tabpanel" aria-labelledby="footer-tab">
+            <div class="mb-4">
+              <h5 class="text-primary">Thông tin footer</h5>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="companyName" class="form-label">Tên công ty</label>
+                    <input type="text" class="form-control" id="companyName" name="companyName" value="<%= settings.footer.companyName %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="footerDescription" class="form-label">Mô tả ngắn</label>
+                    <textarea class="form-control" id="footerDescription" name="footerDescription" rows="3"><%= settings.footer.description %></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="address" class="form-label">Địa chỉ</label>
+                    <input type="text" class="form-control" id="address" name="address" value="<%= settings.footer.address %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="<%= settings.footer.phone %>">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email liên hệ</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<%= settings.footer.email %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="workingHours" class="form-label">Giờ làm việc</label>
+                    <input type="text" class="form-control" id="workingHours" name="workingHours" value="<%= settings.footer.workingHours %>">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="copyright" class="form-label">Thông tin bản quyền</label>
+                <input type="text" class="form-control" id="copyright" name="copyright" value="<%= settings.footer.copyright %>">
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="terms" class="form-label">Link điều khoản sử dụng</label>
+                    <input type="text" class="form-control" id="terms" name="terms" value="<%= settings.legalLinks.terms %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="privacy" class="form-label">Link chính sách bảo mật</label>
+                    <input type="text" class="form-control" id="privacy" name="privacy" value="<%= settings.legalLinks.privacy %>">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Social Media Settings Tab -->
+          <div class="tab-pane fade" id="social" role="tabpanel" aria-labelledby="social-tab">
+            <div class="mb-4">
+              <h5 class="text-primary">Liên kết mạng xã hội</h5>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="facebook" class="form-label">
+                      <i class="fab fa-facebook text-primary me-1"></i> Facebook
+                    </label>
+                    <input type="text" class="form-control" id="facebook" name="facebook" value="<%= settings.socialLinks.facebook %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="twitter" class="form-label">
+                      <i class="fab fa-twitter text-info me-1"></i> Twitter
+                    </label>
+                    <input type="text" class="form-control" id="twitter" name="twitter" value="<%= settings.socialLinks.twitter %>">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="instagram" class="form-label">
+                      <i class="fab fa-instagram text-danger me-1"></i> Instagram
+                    </label>
+                    <input type="text" class="form-control" id="instagram" name="instagram" value="<%= settings.socialLinks.instagram %>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="youtube" class="form-label">
+                      <i class="fab fa-youtube text-danger me-1"></i> YouTube
+                    </label>
+                    <input type="text" class="form-control" id="youtube" name="youtube" value="<%= settings.socialLinks.youtube %>">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i> Lưu cài đặt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

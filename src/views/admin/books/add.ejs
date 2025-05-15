@@ -1,0 +1,195 @@
+<!-- Admin Add Book Page -->
+<div class="container-fluid">
+  <div class="d-flex justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Thêm sách mới</h1>
+    <a href="/admin/books" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+  </div>
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Thông tin sách</h6>
+    </div>
+    <div class="card-body">
+      <form action="/admin/books" method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="title" class="form-label">Tiêu đề *</label>
+              <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="author" class="form-label">Tác giả *</label>
+                  <select class="form-control" id="author" name="author" required>
+                    <option value="">Chọn tác giả</option>
+                    <% authors.forEach(author => { %>
+                      <option value="<%= author._id %>"><%= author.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="category" class="form-label">Danh mục *</label>
+                  <select class="form-control" id="category" name="category" required>
+                    <option value="">Chọn danh mục</option>
+                    <% categories.forEach(category => { %>
+                      <option value="<%= category._id %>"><%= category.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="price" class="form-label">Giá (VNĐ) *</label>
+                  <input type="number" class="form-control" id="price" name="price" min="0" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="stock" class="form-label">Số lượng trong kho *</label>
+                  <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="discount" class="form-label">Giảm giá (%)</label>
+                  <input type="number" class="form-control" id="discount" name="discount" min="0" max="100" value="0">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="pages" class="form-label">Số trang</label>
+                  <input type="number" class="form-control" id="pages" name="pages" min="1">
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="publisher" class="form-label">Nhà xuất bản</label>
+                  <input type="text" class="form-control" id="publisher" name="publisher">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="isbn" class="form-label">ISBN</label>
+                  <input type="text" class="form-control" id="isbn" name="isbn">
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="publicationDate" class="form-label">Ngày xuất bản</label>
+              <input type="date" class="form-control" id="publicationDate" name="publicationDate">
+            </div>
+            
+            <div class="mb-3">
+              <label for="description" class="form-label">Mô tả</label>
+              <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+            </div>
+            
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="featured" name="featured">
+              <label class="form-check-label" for="featured">Sách nổi bật</label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label">Hình ảnh sách (Tối đa 3 ảnh)</label>
+              <small class="form-text text-muted d-block mb-2">Chấp nhận: JPG, PNG, WEBP (tối đa 5MB mỗi ảnh)</small>
+              
+              <!-- Main cover image -->
+              <div class="mb-3">
+                <label for="cover" class="form-label">Ảnh bìa chính *</label>
+                <input type="file" class="form-control" id="cover" name="cover" accept="image/*" required>
+                <div class="mt-2">
+                  <img id="coverPreview" src="/images/books/default-book.png" alt="Ảnh bìa chính" class="img-thumbnail" style="width: 100%; height: 200px; object-fit: cover;">
+                </div>
+              </div>
+              
+              <!-- Additional images -->
+              <div class="additional-images">
+                <div class="row">
+                  <!-- Image 1 -->
+                  <div class="col-6 mb-3">
+                    <label for="bookImage1" class="form-label">Ảnh phụ 1</label>
+                    <input type="file" class="form-control" id="bookImage1" name="additionalImages" accept="image/*">
+                    <div class="mt-2">
+                      <img id="image1Preview" src="/images/books/default-book.png" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+                    </div>
+                  </div>
+                  
+                  <!-- Image 2 -->
+                  <div class="col-6 mb-3">
+                    <label for="bookImage2" class="form-label">Ảnh phụ 2</label>
+                    <input type="file" class="form-control" id="bookImage2" name="additionalImages" accept="image/*">
+                    <div class="mt-2">
+                      <img id="image2Preview" src="/images/books/default-book.png" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-save"></i> Thêm sách
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Main cover image preview
+  document.getElementById('cover').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('coverPreview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Additional image 1 preview
+  document.getElementById('bookImage1').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('image1Preview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Additional image 2 preview
+  document.getElementById('bookImage2').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('image2Preview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script> 

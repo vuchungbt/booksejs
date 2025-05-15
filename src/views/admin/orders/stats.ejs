@@ -1,0 +1,223 @@
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0">Thống kê doanh số</h1>
+  </div>
+  
+  <div>
+    <a href="/admin/orders" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+    </a>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+  <div class="col-xl-4 col-md-6 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0 me-3">
+            <div class="avatar-xl bg-primary-subtle rounded">
+              <i class="fas fa-shopping-cart fa-2x text-primary"></i>
+            </div>
+          </div>
+          <div>
+            <h5 class="card-title mb-1">Tổng đơn hàng</h5>
+            <h3 class="mb-1"><%= totalOrders.toLocaleString('vi-VN') %></h3>
+            <p class="text-muted mb-0">đơn hàng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-4 col-md-6 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0 me-3">
+            <div class="avatar-xl bg-success-subtle rounded">
+              <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+            </div>
+          </div>
+          <div>
+            <h5 class="card-title mb-1">Tổng doanh thu</h5>
+            <h3 class="mb-1"><%= totalSales.toLocaleString('vi-VN') %>đ</h3>
+            <p class="text-muted mb-0">doanh thu</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-4 col-md-6 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0 me-3">
+            <div class="avatar-xl bg-info-subtle rounded">
+              <i class="fas fa-chart-bar fa-2x text-info"></i>
+            </div>
+          </div>
+          <div>
+            <h5 class="card-title mb-1">Giá trị trung bình</h5>
+            <h3 class="mb-1"><%= (totalOrders > 0 ? Math.round(totalSales / totalOrders).toLocaleString('vi-VN') : 0) %>đ</h3>
+            <p class="text-muted mb-0">mỗi đơn hàng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sales Chart -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Biểu đồ doanh số</h5>
+      
+      <div class="btn-group">
+        <a href="/admin/orders/stats/sales?period=day" class="btn btn-sm <%= period === 'day' ? 'btn-primary' : 'btn-outline-primary' %>">Ngày</a>
+        <a href="/admin/orders/stats/sales?period=month" class="btn btn-sm <%= period === 'month' ? 'btn-primary' : 'btn-outline-primary' %>">Tháng</a>
+        <a href="/admin/orders/stats/sales?period=year" class="btn btn-sm <%= period === 'year' ? 'btn-primary' : 'btn-outline-primary' %>">Năm</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <canvas id="salesChart" style="height: 300px;"></canvas>
+  </div>
+</div>
+
+<!-- Top Selling Books -->
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white">
+    <h5 class="card-title mb-0">Top 10 sách bán chạy</h5>
+  </div>
+  <div class="card-body">
+    <% if(topBooks.length === 0) { %>
+      <div class="alert alert-info mb-0">
+        Chưa có dữ liệu về sách bán chạy.
+      </div>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Sách</th>
+              <th class="text-center">Đã bán</th>
+              <th class="text-end">Doanh thu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% topBooks.forEach(function(item, index) { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="<%= item.book ? item.book.cover : '/images/books/default-book.png' %>" alt="<%= item.book ? item.book.title : 'Sách đã bị xóa' %>" class="me-3" width="50">
+                    <div>
+                      <h6 class="mb-0"><%= item.book ? item.book.title : 'Sách đã bị xóa' %></h6>
+                      <% if(!item.book) { %>
+                        <small class="text-danger">Sách đã bị xóa</small>
+                      <% } %>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center"><%= item.totalQuantity %></td>
+                <td class="text-end"><%= item.totalAmount.toLocaleString('vi-VN') %>đ</td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Prepare sales data for chart
+    const salesData = <%- JSON.stringify(salesData) %>;
+    
+    // Extract labels and data
+    const labels = salesData.map(item => item._id);
+    const data = salesData.map(item => item.totalSales);
+    const counts = salesData.map(item => item.count);
+    
+    // Create chart
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const chartData = {
+      labels: labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Doanh số (đ)',
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          data: data,
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Số đơn hàng',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 2,
+          data: counts,
+          yAxisID: 'y1'
+        }
+      ]
+    };
+    
+    new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Doanh số (đ)'
+            },
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString('vi-VN') + 'đ';
+              }
+            }
+          },
+          y1: {
+            beginAtZero: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Số đơn hàng'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .avatar-xl {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style> 

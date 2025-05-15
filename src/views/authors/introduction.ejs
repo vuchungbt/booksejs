@@ -1,0 +1,167 @@
+<!-- Author Introduction Header -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-3 text-center">
+        <img src="<%= author.avatar %>" alt="<%= author.name %>" class="rounded-circle author-avatar mb-3" width="180" height="180">
+      </div>
+      <div class="col-md-9">
+        <h1 class="display-5 fw-bold"><%= author.name %></h1>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <a href="/authors/<%= author._id %>" class="btn btn-primary">
+            <i class="fas fa-user me-1"></i> Hồ sơ tác giả
+          </a>
+          <a href="/authors/<%= author._id %>/books" class="btn btn-outline-primary">
+            <i class="fas fa-book me-1"></i> Xem tất cả sách
+          </a>
+          <% if (author.socialLinks && author.socialLinks.facebook) { %>
+            <a href="<%= author.socialLinks.facebook %>" class="btn btn-outline-dark" target="_blank">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+          <% } %>
+          <% if (author.socialLinks && author.socialLinks.twitter) { %>
+            <a href="<%= author.socialLinks.twitter %>" class="btn btn-outline-dark" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          <% } %>
+          <% if (author.socialLinks && author.socialLinks.instagram) { %>
+            <a href="<%= author.socialLinks.instagram %>" class="btn btn-outline-dark" target="_blank">
+              <i class="fab fa-instagram"></i>
+            </a>
+          <% } %>
+          <% if (author.socialLinks && author.socialLinks.website) { %>
+            <a href="<%= author.socialLinks.website %>" class="btn btn-outline-dark" target="_blank">
+              <i class="fas fa-globe"></i>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Author Introduction Content -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Bio Section -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="card-title border-bottom pb-3 mb-4">Tiểu sử</h3>
+            <div class="author-bio">
+              <% if (author.bio) { %>
+                <% 
+                  // Split bio by paragraphs and display each paragraph
+                  const paragraphs = author.bio.split('\n').filter(p => p.trim() !== '');
+                %>
+                <% paragraphs.forEach(paragraph => { %>
+                  <p><%= paragraph %></p>
+                <% }) %>
+              <% } else { %>
+                <p>Chưa có thông tin tiểu sử về tác giả.</p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Education Section -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="card-title border-bottom pb-3 mb-4">Học vấn</h3>
+            <% if (author.education) { %>
+              <p><%= author.education %></p>
+            <% } else { %>
+              <p>Chưa có thông tin về học vấn của tác giả.</p>
+            <% } %>
+          </div>
+        </div>
+        
+        <!-- Expertise Section -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="card-title border-bottom pb-3 mb-4">Chuyên môn</h3>
+            <% if (author.expertise && author.expertise.length > 0) { %>
+              <div class="d-flex flex-wrap gap-2">
+                <% author.expertise.forEach(skill => { %>
+                  <span class="badge bg-light text-dark p-2 mb-2"><%= skill %></span>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p>Chưa có thông tin về chuyên môn của tác giả.</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Contact Info -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="card-title border-bottom pb-3 mb-4">Thông tin liên hệ</h3>
+            <ul class="list-unstyled">
+              <% if (author.email) { %>
+                <li class="mb-3">
+                  <i class="fas fa-envelope fa-fw text-primary me-2"></i> <%= author.email %>
+                </li>
+              <% } %>
+              <% if (author.phone) { %>
+                <li class="mb-3">
+                  <i class="fas fa-phone fa-fw text-primary me-2"></i> <%= author.phone %>
+                </li>
+              <% } %>
+              <% if (author.address) { %>
+                <li class="mb-3">
+                  <i class="fas fa-map-marker-alt fa-fw text-primary me-2"></i> <%= author.address %>
+                </li>
+              <% } %>
+              <% if (author.socialLinks && author.socialLinks.website) { %>
+                <li class="mb-3">
+                  <i class="fas fa-globe fa-fw text-primary me-2"></i> 
+                  <a href="<%= author.socialLinks.website %>" target="_blank"><%= author.socialLinks.website %></a>
+                </li>
+              <% } %>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Social Media -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="card-title border-bottom pb-3 mb-4">Mạng xã hội</h3>
+            <div class="d-flex flex-wrap gap-3">
+              <% if (author.socialLinks && author.socialLinks.facebook) { %>
+                <a href="<%= author.socialLinks.facebook %>" class="btn btn-outline-primary btn-lg" target="_blank">
+                  <i class="fab fa-facebook-f"></i>
+                </a>
+              <% } %>
+              <% if (author.socialLinks && author.socialLinks.twitter) { %>
+                <a href="<%= author.socialLinks.twitter %>" class="btn btn-outline-info btn-lg" target="_blank">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              <% } %>
+              <% if (author.socialLinks && author.socialLinks.instagram) { %>
+                <a href="<%= author.socialLinks.instagram %>" class="btn btn-outline-danger btn-lg" target="_blank">
+                  <i class="fab fa-instagram"></i>
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .author-avatar {
+    object-fit: cover;
+    border: 5px solid #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  .author-bio p {
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+</style> 

@@ -1,0 +1,112 @@
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0">Thêm tác giả mới</h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/admin">Quản trị</a></li>
+        <li class="breadcrumb-item"><a href="/admin/authors">Tác giả</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Thêm mới</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Add Author Form -->
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form action="/admin/authors" method="POST">
+          <div class="mb-4">
+            <h5 class="border-bottom pb-2">Thông tin cơ bản</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">Tên tác giả <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="col-md-6">
+                <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+              </div>
+              <div class="col-md-6">
+                <label for="phone" class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" id="phone" name="phone">
+              </div>
+              <div class="col-12">
+                <label for="address" class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" id="address" name="address">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="border-bottom pb-2">Thông tin tác giả</h5>
+            <div class="mb-3">
+              <label for="bio" class="form-label">Tiểu sử</label>
+              <textarea class="form-control" id="bio" name="bio" rows="5" placeholder="Viết một đoạn giới thiệu ngắn về tác giả"></textarea>
+              <div class="form-text">Viết ngắn gọn về tác giả, kinh nghiệm và các tác phẩm nổi bật.</div>
+            </div>
+            <div class="mb-3">
+              <label for="education" class="form-label">Học vấn</label>
+              <input type="text" class="form-control" id="education" name="education" placeholder="Ví dụ: Đại học Văn học TP.HCM, Khóa 2010-2014">
+            </div>
+            <div class="mb-3">
+              <label for="expertise" class="form-label">Chuyên môn</label>
+              <input type="text" class="form-control" id="expertise" name="expertise" placeholder="Ví dụ: Văn học hiện đại, Tiểu thuyết, Truyện ngắn">
+              <div class="form-text">Nhập các chủ đề/thể loại tác giả chuyên về, cách nhau bởi dấu phẩy.</div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="border-bottom pb-2">Liên kết mạng xã hội</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="facebook" class="form-label">Facebook</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fab fa-facebook-f"></i></span>
+                  <input type="url" class="form-control" id="facebook" name="facebook" placeholder="https://facebook.com/profile">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="twitter" class="form-label">Twitter</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                  <input type="url" class="form-control" id="twitter" name="twitter" placeholder="https://twitter.com/handle">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="instagram" class="form-label">Instagram</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                  <input type="url" class="form-control" id="instagram" name="instagram" placeholder="https://instagram.com/profile">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="website" class="form-label">Website cá nhân</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                  <input type="url" class="form-control" id="website" name="website" placeholder="https://website.com">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin/authors" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i> Quay lại
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Lưu tác giả
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,160 @@
+<!-- Hero Section -->
+<section class="hero text-center">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Khám phá thế giới qua từng trang sách</h1>
+    <p class="lead mb-4">Nhà Sách Online mang đến cho bạn kho tàng sách phong phú với nhiều thể loại đa dạng, giúp bạn mở rộng kiến thức và thỏa mãn đam mê đọc sách.</p>
+    <div>
+      <a href="/books" class="btn btn-primary btn-lg me-2">Khám phá ngay</a>
+      <a href="/auth/register" class="btn btn-outline-light btn-lg">Đăng ký</a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Books Section -->
+<section class="mb-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="section-title">Sách nổi bật</h2>
+      <a href="/books" class="text-decoration-none">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      <% featuredBooks.forEach(function(book) { %>
+        <div class="col">
+          <div class="card book-card h-100">
+            <div class="position-relative">
+              <img src="<%= book.cover %>" class="card-img-top" alt="<%= book.title %>">
+              <% if(book.discount > 0) { %>
+                <span class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">-<%= book.discount %>%</span>
+              <% } %>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title"><a href="/books/<%= book.slug %>"><%= book.title %></a></h5>
+              <p class="card-author mb-2"><%= book.author && book.author.name ? book.author.name : 'Tác giả không xác định' %></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="card-price"><%= Math.round(book.price * (1 - book.discount/100)).toLocaleString('vi-VN') %>đ</span>
+                  <% if(book.discount > 0) { %>
+                    <span class="card-price-old"><%= book.price.toLocaleString('vi-VN') %>đ</span>
+                  <% } %>
+                </div>
+                <div class="rating">
+                  <% for(let i = 1; i <= 5; i++) { %>
+                    <% if(i <= Math.round(book.avgRating)) { %>
+                      <i class="fas fa-star"></i>
+                    <% } else { %>
+                      <i class="far fa-star"></i>
+                    <% } %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+              <a href="/books/<%= book.slug %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+              <form action="/cart/add/<%= book._id %>" method="POST">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="mb-5 bg-light py-5">
+  <div class="container">
+    <h2 class="section-title text-center mb-4">Danh mục sách</h2>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4">
+      <% categories.forEach(function(category) { %>
+        <div class="col">
+          <div class="category-card">
+            <div class="category-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <h4><a href="/books?category=<%= category._id %>"><%= category.name %></a></h4>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<!-- Latest Books Section -->
+<section class="mb-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="section-title">Sách mới</h2>
+      <a href="/books" class="text-decoration-none">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      <% latestBooks.forEach(function(book) { %>
+        <div class="col">
+          <div class="card book-card h-100">
+            <div class="position-relative">
+              <img src="<%= book.cover %>" class="card-img-top" alt="<%= book.title %>">
+              <% if(book.discount > 0) { %>
+                <span class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">-<%= book.discount %>%</span>
+              <% } %>
+              <span class="position-absolute top-0 end-0 bg-success text-white py-1 px-2 m-2 rounded-pill">Mới</span>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title"><a href="/books/<%= book.slug %>"><%= book.title %></a></h5>
+              <p class="card-author mb-2"><%= book.author && book.author.name ? book.author.name : 'Tác giả không xác định' %></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="card-price"><%= Math.round(book.price * (1 - book.discount/100)).toLocaleString('vi-VN') %>đ</span>
+                  <% if(book.discount > 0) { %>
+                    <span class="card-price-old"><%= book.price.toLocaleString('vi-VN') %>đ</span>
+                  <% } %>
+                </div>
+                <div class="rating">
+                  <% for(let i = 1; i <= 5; i++) { %>
+                    <% if(i <= Math.round(book.avgRating)) { %>
+                      <i class="fas fa-star"></i>
+                    <% } else { %>
+                      <i class="far fa-star"></i>
+                    <% } %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+              <a href="/books/<%= book.slug %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+              <form action="/cart/add/<%= book._id %>" method="POST">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="mb-5 bg-primary text-white py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <h2>Đăng ký nhận thông tin</h2>
+        <p>Đăng ký để nhận thông tin về sách mới, khuyến mãi và sự kiện đặc biệt.</p>
+      </div>
+      <div class="col-md-6">
+        <form class="d-flex">
+          <input type="email" class="form-control me-2" placeholder="Nhập email của bạn">
+          <button type="submit" class="btn btn-accent">Đăng ký</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

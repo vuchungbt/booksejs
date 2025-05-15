@@ -1,0 +1,51 @@
+<div class="admin-sidebar bg-dark text-white">
+  <div class="sidebar-header p-3 mb-3 border-bottom border-secondary">
+    <% if (settings && settings.logoPath) { %>
+      <div class="text-center mb-2">
+        <img src="<%= settings.logoPath %>" alt="<%= settings.siteName %>" height="40" class="img-fluid">
+      </div>
+    <% } %>
+    <h1 class="h5 mb-0"><%= settings ? settings.siteName : 'Nhà sách' %></h1>
+    <p class="small mb-0">Quản trị hệ thống</p>
+  </div>
+  
+  <div class="sidebar-menu">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a href="/admin" class="nav-link <%= title === 'Quản trị' ? 'active' : '' %>">
+          <i class="fas fa-tachometer-alt me-2"></i> Tổng quan
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/books" class="nav-link <%= title.includes('Sách') || title.includes('sách') ? 'active' : '' %>">
+          <i class="fas fa-book me-2"></i> Quản lý sách
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/categories" class="nav-link <%= title.includes('Danh mục') ? 'active' : '' %>">
+          <i class="fas fa-tags me-2"></i> Danh mục
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/users" class="nav-link <%= title.includes('Người dùng') ? 'active' : '' %>">
+          <i class="fas fa-users me-2"></i> Người dùng
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/authors" class="nav-link <%= title.includes('tác giả') || title.includes('Tác giả') || title.includes('Chi tiết tác giả') || title.includes('Chỉnh sửa tác giả') ? 'active' : '' %>">
+          <i class="fas fa-user-edit me-2"></i> Quản lý tác giả
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/orders" class="nav-link <%= title.includes('Đơn hàng') ? 'active' : '' %>">
+          <i class="fas fa-shopping-cart me-2"></i> Đơn hàng
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/admin/settings" class="nav-link <%= title.includes('Cài đặt') ? 'active' : '' %>">
+          <i class="fas fa-cog me-2"></i> Cài đặt hệ thống
+        </a>
+      </li>
+    </ul>
+  </div>
+</div> 

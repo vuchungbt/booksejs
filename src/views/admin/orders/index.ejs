@@ -1,0 +1,203 @@
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Quản lý đơn hàng</h1>
+  
+  <div class="d-flex">
+    <a href="/admin/orders/stats/sales" class="btn btn-primary">
+      <i class="fas fa-chart-line me-1"></i> Thống kê doanh số
+    </a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-8">
+        <form action="/admin/orders" method="GET" class="d-flex">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Tìm theo tên khách hàng hoặc email" name="search" value="<%= search %>">
+            <button class="btn btn-outline-primary" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <% if(search) { %>
+            <a href="/admin/orders" class="btn btn-outline-secondary ms-2">Xóa bộ lọc</a>
+          <% } %>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+          <select class="form-select w-auto" id="statusFilter">
+            <option value="all" <%= status === 'all' ? 'selected' : '' %>>Tất cả trạng thái</option>
+            <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Chờ xác nhận</option>
+            <option value="confirmed" <%= status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
+            <option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Đang giao hàng</option>
+            <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Đã giao hàng</option>
+            <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Orders List -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>Mã đơn hàng</th>
+            <th>Khách hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Thanh toán</th>
+            <th>Trạng thái</th>
+            <th class="text-end">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(orders.length === 0) { %>
+            <tr>
+              <td colspan="7" class="text-center py-4">Không tìm thấy đơn hàng nào.</td>
+            </tr>
+          <% } %>
+          
+          <% orders.forEach(function(order) { %>
+            <tr>
+              <td>
+                <div class="fw-semibold"><%= order._id.toString().substring(0, 10) %>...</div>
+              </td>
+              <td>
+                <div><%= order.user ? order.user.name : 'Khách hàng đã bị xóa' %></div>
+                <div class="small text-muted"><%= order.user ? order.user.email : '' %></div>
+              </td>
+              <td>
+                <div><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></div>
+                <div class="small text-muted"><%= new Date(order.createdAt).toLocaleTimeString('vi-VN') %></div>
+              </td>
+              <td>
+                <div class="fw-semibold"><%= order.totalAmount.toLocaleString('vi-VN') %>đ</div>
+                <div class="small text-muted"><%= order.items.length %> sản phẩm</div>
+              </td>
+              <td>
+                <% if(order.isPaid) { %>
+                  <span class="badge bg-success-subtle text-success">
+                    <i class="fas fa-check-circle me-1"></i> Đã thanh toán
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-warning-subtle text-warning">
+                    <i class="fas fa-clock me-1"></i> Chưa thanh toán
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <% 
+                  let statusClass, statusText, statusIcon;
+                  
+                  switch(order.status) {
+                    case 'pending':
+                      statusClass = 'bg-warning-subtle text-warning';
+                      statusText = 'Chờ xác nhận';
+                      statusIcon = 'fa-clock';
+                      break;
+                    case 'confirmed':
+                      statusClass = 'bg-info-subtle text-info';
+                      statusText = 'Đã xác nhận';
+                      statusIcon = 'fa-check';
+                      break;
+                    case 'shipped':
+                      statusClass = 'bg-primary-subtle text-primary';
+                      statusText = 'Đang giao hàng';
+                      statusIcon = 'fa-truck';
+                      break;
+                    case 'delivered':
+                      statusClass = 'bg-success-subtle text-success';
+                      statusText = 'Đã giao hàng';
+                      statusIcon = 'fa-box-check';
+                      break;
+                    case 'cancelled':
+                      statusClass = 'bg-danger-subtle text-danger';
+                      statusText = 'Đã hủy';
+                      statusIcon = 'fa-times-circle';
+                      break;
+                    default:
+                      statusClass = 'bg-secondary-subtle text-secondary';
+                      statusText = 'Không xác định';
+                      statusIcon = 'fa-question-circle';
+                  }
+                %>
+                <span class="badge <%= statusClass %>">
+                  <i class="fas <%= statusIcon %> me-1"></i> <%= statusText %>
+                </span>
+              </td>
+              <td class="text-end">
+                <a href="/admin/orders/<%= order._id %>" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-eye"></i>
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<% if (totalPages > 1) { %>
+  <div class="mt-4">
+    <nav>
+      <ul class="pagination justify-content-center">
+        <% if (currentPage > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="/admin/orders?page=<%= currentPage - 1 %><%= status !== 'all' ? `&status=${status}` : '' %><%= search ? `&search=${search}` : '' %>">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+        <% } %>
+        
+        <% for(let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+            <a class="page-link" href="/admin/orders?page=<%= i %><%= status !== 'all' ? `&status=${status}` : '' %><%= search ? `&search=${search}` : '' %>">
+              <%= i %>
+            </a>
+          </li>
+        <% } %>
+        
+        <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %><%= status !== 'all' ? `&status=${status}` : '' %><%= search ? `&search=${search}` : '' %>">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+<% } %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    
+    statusFilter.addEventListener('change', function() {
+      const status = this.value;
+      const currentUrl = new URL(window.location.href);
+      
+      if (status === 'all') {
+        currentUrl.searchParams.delete('status');
+      } else {
+        currentUrl.searchParams.set('status', status);
+      }
+      
+      // Keep current page and search if exists
+      currentUrl.searchParams.set('page', '1'); // Reset to page 1 when filtering
+      
+      window.location.href = currentUrl.toString();
+    });
+  });
+</script> 

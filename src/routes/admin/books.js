@@ -342,7 +342,7 @@ router.delete('/:id', async (req, res) => {
       });
     }
     
-    await book.remove();
+    await Book.findByIdAndDelete(req.params.id);
     
     req.flash('success_msg', 'Xóa sách thành công');
     res.redirect('/admin/books');

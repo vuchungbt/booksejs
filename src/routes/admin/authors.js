@@ -1,9 +1,50 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 import User from '../../models/User.js';
 import Book from '../../models/Book.js';
 import { isAdmin } from '../../middleware/auth.js';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Set up multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../../public/uploads/authors');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+
+// Check file type
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|webp/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+  
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Chỉ chấp nhận ảnh (jpeg, jpg, png, webp)'));
+  }
+};
+
+// Use single for avatar upload
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 2000000 } // 2MB
+});
 
 // Apply admin middleware to all routes
 router.use(isAdmin);
@@ -65,7 +106,7 @@ router.get('/add', async (req, res) => {
 // @desc    Add new author
 // @route   POST /admin/authors
 // @access  Private/Admin
-router.post('/', async (req, res) => {
+router.post('/', upload.single('avatar'), async (req, res) => {
   try {
     const { name, email, password, phone, address, bio, education } = req.body;
     const expertise = req.body.expertise ? req.body.expertise.split(',').map(skill => skill.trim()) : [];
@@ -78,7 +119,7 @@ router.post('/', async (req, res) => {
     }
     
     // Create new author
-    await User.create({
+    const author = new User({
       name,
       email,
       password,
@@ -93,8 +134,16 @@ router.post('/', async (req, res) => {
         twitter: req.body.twitter || '',
         instagram: req.body.instagram || '',
         website: req.body.website || ''
-      }
+      },
+      avatar: '/images/avatars/default-avatar.png' // Set default avatar
     });
+
+    // Add avatar if uploaded
+    if (req.file) {
+      author.avatar = `/uploads/authors/${req.file.filename}`;
+    }
+    
+    await author.save();
     
     req.flash('success_msg', 'Thêm tác giả mới thành công');
     res.redirect('/admin/authors');
@@ -172,7 +221,7 @@ router.get('/edit/:id', async (req, res) => {
 // @desc    Update author
 // @route   PUT /admin/authors/:id
 // @access  Private/Admin
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('avatar'), async (req, res) => {
   try {
     const { name, phone, address, bio, education } = req.body;
     const expertise = req.body.expertise ? req.body.expertise.split(',').map(skill => skill.trim()) : [];
@@ -200,6 +249,18 @@ router.put('/:id', async (req, res) => {
       instagram: req.body.instagram || '',
       website: req.body.website || ''
     };
+
+    // Update avatar if uploaded
+    if (req.file) {
+      // Delete old avatar if exists and not default
+      if (author.avatar && author.avatar !== '/images/avatars/default-avatar.png') {
+        const oldAvatarPath = path.join(__dirname, '../../public', author.avatar);
+        if (fs.existsSync(oldAvatarPath)) {
+          fs.unlinkSync(oldAvatarPath);
+        }
+      }
+      author.avatar = `/uploads/authors/${req.file.filename}`;
+    }
     
     await author.save();
     

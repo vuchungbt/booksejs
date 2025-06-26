@@ -1,0 +1,192 @@
+<!-- Admin Articles Page -->
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Quản lý bài viết</h1>
+    <a href="/admin/articles/add" class="btn btn-primary btn-sm shadow-sm">
+      <i class="fas fa-plus fa-sm text-white-50"></i> Thêm bài viết mới
+    </a>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm và lọc</h6>
+    </div>
+    <div class="card-body">
+      <form method="GET" action="/admin/articles">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="search">Tìm kiếm tiêu đề</label>
+              <input type="text" class="form-control" id="search" name="search" value="<%= search %>" placeholder="Nhập tiêu đề bài viết...">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="status">Trạng thái</label>
+              <select class="form-control" id="status" name="status">
+                <option value="">Tất cả trạng thái</option>
+                <option value="draft" <%= status === 'draft' ? 'selected' : '' %>>Bản nháp</option>
+                <option value="published" <%= status === 'published' ? 'selected' : '' %>>Đã xuất bản</option>
+                <option value="archived" <%= status === 'archived' ? 'selected' : '' %>>Lưu trữ</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="author">Tác giả</label>
+              <select class="form-control" id="author" name="author">
+                <option value="">Tất cả tác giả</option>
+                <% authors.forEach(a => { %>
+                  <option value="<%= a._id %>" <%= author === a._id.toString() ? 'selected' : '' %>><%= a.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <div>
+                <button type="submit" class="btn btn-primary btn-block">
+                  <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Articles Table -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Danh sách bài viết</h6>
+    </div>
+    <div class="card-body">
+      <% if (articles.length === 0) { %>
+        <div class="text-center py-4">
+          <i class="fas fa-newspaper fa-3x text-gray-300 mb-3"></i>
+          <p class="text-gray-500">Không có bài viết nào</p>
+          <a href="/admin/articles/add" class="btn btn-primary">Thêm bài viết đầu tiên</a>
+        </div>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="10%">Hình ảnh</th>
+                <th width="25%">Tiêu đề</th>
+                <th width="15%">Tác giả</th>
+                <th width="10%">Trạng thái</th>
+                <th width="10%">Lượt xem</th>
+                <th width="10%">Ngày tạo</th>
+                <th width="15%">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% articles.forEach((article, index) => { %>
+                <tr>
+                  <td><%= (currentPage - 1) * 10 + index + 1 %></td>
+                  <td>
+                    <img src="<%= article.featuredImage %>" alt="<%= article.title %>" 
+                         class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                  </td>
+                  <td>
+                    <div class="font-weight-bold"><%= article.title %></div>
+                    <div class="small text-gray-600">
+                      <%= article.excerpt.length > 80 ? article.excerpt.substring(0, 80) + '...' : article.excerpt %>
+                    </div>
+                    <% if (article.featured) { %>
+                      <span class="badge badge-warning badge-sm mt-1">
+                        <i class="fas fa-star"></i> Nổi bật
+                      </span>
+                    <% } %>
+                    <% if (article.tags && article.tags.length > 0) { %>
+                      <div class="mt-1">
+                        <% article.tags.slice(0, 3).forEach(tag => { %>
+                          <span class="badge badge-secondary badge-sm mr-1"><%= tag %></span>
+                        <% }) %>
+                        <% if (article.tags.length > 3) { %>
+                          <span class="badge badge-light badge-sm">+<%= article.tags.length - 3 %></span>
+                        <% } %>
+                      </div>
+                    <% } %>
+                  </td>
+                  <td><%= article.author.name %></td>
+                  <td>
+                    <% if (article.status === 'published') { %>
+                      <span class="badge badge-success">Đã xuất bản</span>
+                    <% } else if (article.status === 'draft') { %>
+                      <span class="badge badge-warning">Bản nháp</span>
+                    <% } else { %>
+                      <span class="badge badge-secondary">Lưu trữ</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <i class="fas fa-eye text-gray-400"></i> <%= article.views %>
+                  </td>
+                  <td>
+                    <div class="small">
+                      <%= new Date(article.createdAt).toLocaleDateString('vi-VN') %>
+                    </div>
+                    <div class="small text-gray-500">
+                      <%= new Date(article.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <a href="/admin/articles/edit/<%= article._id %>" class="btn btn-primary btn-sm" title="Chỉnh sửa">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <form method="POST" action="/admin/articles/<%= article._id %>?_method=DELETE" 
+                            style="display: inline;" 
+                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')">
+                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+              <% if (currentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= search %>&status=<%= status %>&author=<%= author %>">
+                    <i class="fas fa-chevron-left"></i> Trước
+                  </a>
+                </li>
+              <% } %>
+
+              <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>&search=<%= search %>&status=<%= status %>&author=<%= author %>">
+                    <%= i %>
+                  </a>
+                </li>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= search %>&status=<%= status %>&author=<%= author %>">
+                    Sau <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</div> 

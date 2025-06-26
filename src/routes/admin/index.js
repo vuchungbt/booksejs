@@ -4,6 +4,7 @@ import Book from '../../models/Book.js';
 import User from '../../models/User.js';
 import Order from '../../models/Order.js';
 import Category from '../../models/Category.js';
+import Article from '../../models/Article.js';
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.get('/', async (req, res) => {
     const userCount = await User.countDocuments();
     const orderCount = await Order.countDocuments();
     const categoryCount = await Category.countDocuments();
+    const articleCount = await Article.countDocuments();
     
     // Get recent orders
     const recentOrders = await Order.find()
@@ -44,7 +46,8 @@ router.get('/', async (req, res) => {
         books: bookCount,
         users: userCount,
         orders: orderCount,
-        categories: categoryCount
+        categories: categoryCount,
+        articles: articleCount
       },
       recentOrders,
       totalSales
@@ -59,7 +62,8 @@ router.get('/', async (req, res) => {
         books: 0,
         users: 0,
         orders: 0,
-        categories: 0
+        categories: 0,
+        articles: 0
       },
       recentOrders: [],
       totalSales: 0
@@ -90,5 +94,9 @@ router.use('/authors', authorRoutes);
 // Settings routes
 import settingsRoutes from './settings.js';
 router.use('/settings', settingsRoutes);
+
+// Articles routes
+import articleRoutes from './articles.js';
+router.use('/articles', articleRoutes);
 
 export default router;

@@ -179,6 +179,60 @@
           </div>
         </div>
         
+        <!-- External Purchase Platforms -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">
+                <h6 class="m-0 font-weight-bold">Nền tảng mua sách bên ngoài</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <!-- Amazon KDP -->
+                  <div class="col-md-6">
+                    <h6 class="text-warning"><i class="fab fa-amazon"></i> Amazon Kindle</h6>
+                    <div class="mb-3">
+                      <label for="amazonKDPLink" class="form-label">Link Amazon KDP</label>
+                      <input type="url" class="form-control" id="amazonKDPLink" name="amazonKDP.link" 
+                        value="<%= book.amazonKDP ? book.amazonKDP.link : '' %>" placeholder="https://amazon.com/...">
+                    </div>
+                    <div class="mb-3">
+                      <label for="amazonKDPImage" class="form-label">Hình ảnh Amazon KDP</label>
+                      <input type="file" class="form-control" id="amazonKDPImage" name="amazonKDPImage" accept="image/*">
+                      <small class="form-text text-muted">Để trống sẽ giữ hình ảnh hiện tại</small>
+                      <div class="mt-2">
+                        <img id="amazonImagePreview" 
+                          src="<%= book.amazonKDP ? book.amazonKDP.image : '/images/books/amz_default.png' %>" 
+                          alt="Amazon KDP" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Google Play Books -->
+                  <div class="col-md-6">
+                    <h6 class="text-primary"><i class="fab fa-google-play"></i> Google Play Books</h6>
+                    <div class="mb-3">
+                      <label for="googlePlayBooksLink" class="form-label">Link Google Play Books</label>
+                      <input type="url" class="form-control" id="googlePlayBooksLink" name="googlePlayBooks.link" 
+                        value="<%= book.googlePlayBooks ? book.googlePlayBooks.link : '' %>" placeholder="https://play.google.com/store/books/...">
+                    </div>
+                    <div class="mb-3">
+                      <label for="googlePlayBooksImage" class="form-label">Hình ảnh Google Play Books</label>
+                      <input type="file" class="form-control" id="googlePlayBooksImage" name="googlePlayBooksImage" accept="image/*">
+                      <small class="form-text text-muted">Để trống sẽ giữ hình ảnh hiện tại</small>
+                      <div class="mt-2">
+                        <img id="googleImagePreview" 
+                          src="<%= book.googlePlayBooks ? book.googlePlayBooks.image : '/images/books/gg_default.png' %>" 
+                          alt="Google Play Books" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="text-center mt-4">
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-save"></i> Cập nhật sách
@@ -221,6 +275,30 @@
       const reader = new FileReader();
       reader.onload = function(event) {
         document.getElementById('image2Preview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Amazon KDP image preview
+  document.getElementById('amazonKDPImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('amazonImagePreview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Google Play Books image preview
+  document.getElementById('googlePlayBooksImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('googleImagePreview').src = event.target.result;
       };
       reader.readAsDataURL(file);
     }

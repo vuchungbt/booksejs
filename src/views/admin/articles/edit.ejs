@@ -1,0 +1,221 @@
+<!-- Admin Edit Article Page -->
+<div class="container-fluid">
+  <div class="d-flex justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa bài viết</h1>
+    <a href="/admin/articles" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+  </div>
+
+  <form action="/admin/articles/<%= article._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+    <div class="row">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Nội dung bài viết</h6>
+          </div>
+          <div class="card-body">
+            <!-- Title -->
+            <div class="form-group">
+              <label for="title">Tiêu đề bài viết *</label>
+              <input type="text" class="form-control" id="title" name="title" value="<%= article.title %>" required maxlength="200">
+            </div>
+
+            <!-- Excerpt -->
+            <div class="form-group">
+              <label for="excerpt">Tóm tắt bài viết *</label>
+              <textarea class="form-control" id="excerpt" name="excerpt" rows="3" required maxlength="500" placeholder="Mô tả ngắn gọn về nội dung bài viết..."><%= article.excerpt %></textarea>
+              <small class="form-text text-muted">Tối đa 500 ký tự</small>
+            </div>
+
+            <!-- Content with Quill Editor -->
+            <div class="form-group">
+              <label for="content">Nội dung bài viết *</label>
+              <div id="editor" style="height: 400px;"></div>
+              <textarea id="content" name="content" style="display: none;" required><%= article.content %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Publish Options -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tùy chọn xuất bản</h6>
+          </div>
+          <div class="card-body">
+            <!-- Status -->
+            <div class="form-group">
+              <label for="status">Trạng thái</label>
+              <select class="form-control" id="status" name="status">
+                <option value="draft" <%= article.status === 'draft' ? 'selected' : '' %>>Bản nháp</option>
+                <option value="published" <%= article.status === 'published' ? 'selected' : '' %>>Xuất bản ngay</option>
+                <option value="archived" <%= article.status === 'archived' ? 'selected' : '' %>>Lưu trữ</option>
+              </select>
+            </div>
+
+            <!-- Author -->
+            <div class="form-group">
+              <label for="author">Tác giả</label>
+              <select class="form-control" id="author" name="author">
+                <% authors.forEach(a => { %>
+                  <option value="<%= a._id %>" <%= a._id.toString() === article.author.toString() ? 'selected' : '' %>><%= a.name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <!-- Featured -->
+            <div class="form-group">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="featured" name="featured" <%= article.featured ? 'checked' : '' %>>
+                <label class="form-check-label" for="featured">
+                  <i class="fas fa-star text-warning"></i> Bài viết nổi bật
+                </label>
+              </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-save"></i> Cập nhật bài viết
+              </button>
+            </div>
+
+            <!-- Article Info -->
+            <div class="mt-3 pt-3 border-top">
+              <small class="text-muted">
+                <div><strong>Ngày tạo:</strong> <%= new Date(article.createdAt).toLocaleDateString('vi-VN') %></div>
+                <div><strong>Cập nhật:</strong> <%= new Date(article.updatedAt).toLocaleDateString('vi-VN') %></div>
+                <div><strong>Lượt xem:</strong> <%= article.views %></div>
+                <% if (article.publishedAt) { %>
+                  <div><strong>Xuất bản:</strong> <%= new Date(article.publishedAt).toLocaleDateString('vi-VN') %></div>
+                <% } %>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Image -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Hình ảnh đại diện</h6>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <input type="file" class="form-control" id="featuredImage" name="featuredImage" accept="image/*">
+              <small class="form-text text-muted">Để trống sẽ giữ hình ảnh hiện tại</small>
+            </div>
+            
+            <div class="mt-3">
+              <img id="imagePreview" src="<%= article.featuredImage %>" alt="Preview" 
+                   class="img-fluid rounded" style="width: 100%; max-height: 200px; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Books -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Sách liên quan</h6>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <select class="form-control" id="relatedBooks" name="relatedBooks" multiple>
+                <% books.forEach(book => { %>
+                  <% const isSelected = article.relatedBooks.some(rb => rb._id.toString() === book._id.toString()) %>
+                  <option value="<%= book._id %>" <%= isSelected ? 'selected' : '' %>><%= book.title %></option>
+                <% }) %>
+              </select>
+              <small class="form-text text-muted">Giữ Ctrl để chọn nhiều sách</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thẻ từ khóa</h6>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <input type="text" class="form-control" id="tags" name="tags" 
+                     value="<%= article.tags.join(', ') %>" 
+                     placeholder="Nhập thẻ cách nhau bởi dấu phẩy">
+              <small class="form-text text-muted">Ví dụ: review sách, văn học, tiểu thuyết</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Quill Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+  // Initialize Quill Editor
+  var quill = new Quill('#editor', {
+    theme: 'snow',
+    placeholder: 'Bắt đầu viết nội dung bài viết của bạn...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        ['link', 'blockquote', 'code-block'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Load existing content when editing
+  document.addEventListener('DOMContentLoaded', function() {
+    const existingContent = document.getElementById('content').value;
+    if (existingContent) {
+      quill.root.innerHTML = existingContent;
+    }
+  });
+
+  // Update hidden textarea when content changes
+  quill.on('text-change', function() {
+    document.getElementById('content').value = quill.root.innerHTML;
+  });
+
+  // Image preview functionality
+  document.getElementById('featuredImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('imagePreview').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Character count for excerpt
+  document.getElementById('excerpt').addEventListener('input', function(e) {
+    const remaining = 500 - e.target.value.length;
+    const small = e.target.nextElementSibling;
+    small.textContent = `Còn lại ${remaining} ký tự`;
+    
+    if (remaining < 50) {
+      small.className = 'form-text text-danger';
+    } else {
+      small.className = 'form-text text-muted';
+    }
+  });
+
+  // Initialize character count on load
+  document.addEventListener('DOMContentLoaded', function() {
+    const excerptField = document.getElementById('excerpt');
+    excerptField.dispatchEvent(new Event('input'));
+  });
+</script> 

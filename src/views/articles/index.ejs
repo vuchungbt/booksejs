@@ -1,0 +1,245 @@
+<!-- Articles Page -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-5 fw-bold text-primary mb-3">Bài viết</h1>
+        <p class="lead text-muted">Khám phá những bài viết thú vị về sách và văn học</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form method="GET" action="/articles">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" value="<%= search %>" placeholder="Tìm kiếm bài viết...">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select class="form-control" name="tag" onchange="this.form.submit()">
+                <option value="">Tất cả chủ đề</option>
+                <% allTags.forEach(tagItem => { %>
+                  <option value="<%= tagItem %>" <%= tag === tagItem ? 'selected' : '' %>><%= tagItem %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <% if (search || tag) { %>
+                <a href="/articles" class="btn btn-outline-secondary w-100">Xóa lọc</a>
+              <% } %>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Featured Articles (Only on first page) -->
+    <% if (featuredArticles.length > 0) { %>
+      <div class="mb-5">
+        <h2 class="h4 mb-4">
+          <i class="fas fa-star text-warning me-2"></i>Bài viết nổi bật
+        </h2>
+        <div class="row g-4">
+          <% featuredArticles.forEach(article => { %>
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 border-0 shadow-sm article-card featured">
+                <div class="position-relative">
+                  <img src="<%= article.featuredImage %>" class="card-img-top article-image" alt="<%= article.title %>">
+                  <span class="position-absolute top-0 start-0 bg-warning text-dark px-2 py-1 m-2 rounded-pill small">
+                    <i class="fas fa-star"></i> Nổi bật
+                  </span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">
+                    <a href="/articles/<%= article.slug %>" class="text-decoration-none"><%= article.title %></a>
+                  </h5>
+                  <p class="card-text text-muted flex-grow-1">
+                    <%= article.excerpt.length > 120 ? article.excerpt.substring(0, 120) + '...' : article.excerpt %>
+                  </p>
+                  <div class="d-flex justify-content-between align-items-center mt-auto">
+                    <small class="text-muted">
+                      <i class="fas fa-user"></i> <%= article.author.name %>
+                    </small>
+                    <small class="text-muted">
+                      <i class="fas fa-eye"></i> <%= article.views %>
+                    </small>
+                  </div>
+                  <% if (article.tags && article.tags.length > 0) { %>
+                    <div class="mt-2">
+                      <% article.tags.slice(0, 3).forEach(tagItem => { %>
+                        <span class="badge bg-secondary me-1"><%= tagItem %></span>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- All Articles -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h4 mb-0">
+        <% if (search) { %>
+          Kết quả tìm kiếm cho "<%= search %>"
+        <% } else if (tag) { %>
+          Bài viết về "<%= tag %>"
+        <% } else { %>
+          Tất cả bài viết
+        <% } %>
+      </h2>
+    </div>
+
+    <% if (articles.length === 0) { %>
+      <div class="text-center py-5">
+        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+        <h4>Không có bài viết nào</h4>
+        <p class="text-muted">
+          <% if (search || tag) { %>
+            Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
+          <% } else { %>
+            Hiện tại chưa có bài viết nào được xuất bản
+          <% } %>
+        </p>
+      </div>
+    <% } else { %>
+      <div class="row g-4">
+        <% articles.forEach(article => { %>
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm article-card">
+              <div class="position-relative">
+                <img src="<%= article.featuredImage %>" class="card-img-top article-image" alt="<%= article.title %>">
+                <div class="position-absolute bottom-0 start-0 end-0 bg-gradient-dark p-3">
+                  <small class="text-white">
+                    <i class="fas fa-calendar"></i>
+                    <%= new Date(article.publishedAt || article.createdAt).toLocaleDateString('vi-VN') %>
+                  </small>
+                </div>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">
+                  <a href="/articles/<%= article.slug %>" class="text-decoration-none"><%= article.title %></a>
+                </h5>
+                <p class="card-text text-muted flex-grow-1">
+                  <%= article.excerpt.length > 120 ? article.excerpt.substring(0, 120) + '...' : article.excerpt %>
+                </p>
+                
+                <!-- Related Books -->
+                <% if (article.relatedBooks && article.relatedBooks.length > 0) { %>
+                  <div class="mb-2">
+                    <small class="text-muted">Sách liên quan:</small>
+                    <% article.relatedBooks.slice(0, 2).forEach(book => { %>
+                      <a href="/books/<%= book.slug %>" class="badge bg-light text-dark text-decoration-none me-1">
+                        <%= book.title %>
+                      </a>
+                    <% }) %>
+                  </div>
+                <% } %>
+                
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                  <small class="text-muted">
+                    <i class="fas fa-user"></i> <%= article.author.name %>
+                  </small>
+                  <small class="text-muted">
+                    <i class="fas fa-eye"></i> <%= article.views %>
+                  </small>
+                </div>
+                
+                <% if (article.tags && article.tags.length > 0) { %>
+                  <div class="mt-2">
+                    <% article.tags.slice(0, 3).forEach(tagItem => { %>
+                      <a href="/articles?tag=<%= encodeURIComponent(tagItem) %>" class="badge bg-secondary text-decoration-none me-1">
+                        <%= tagItem %>
+                      </a>
+                    <% }) %>
+                    <% if (article.tags.length > 3) { %>
+                      <span class="badge bg-light text-dark">+<%= article.tags.length - 3 %></span>
+                    <% } %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <nav aria-label="Pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= search %>&tag=<%= tag %>">
+                  <i class="fas fa-chevron-left"></i> Trước
+                </a>
+              </li>
+            <% } %>
+
+            <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>&search=<%= search %>&tag=<%= tag %>">
+                  <%= i %>
+                </a>
+              </li>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= search %>&tag=<%= tag %>">
+                  Sau <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<style>
+  .article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+  }
+  
+  .article-image {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .article-card:hover .article-image {
+    transform: scale(1.05);
+  }
+  
+  .article-card.featured {
+    border: 2px solid #ffc107 !important;
+  }
+  
+  .bg-gradient-dark {
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  }
+  
+  .card-title a {
+    color: #333;
+    transition: color 0.3s ease;
+  }
+  
+  .card-title a:hover {
+    color: #0d6efd;
+  }
+</style> 

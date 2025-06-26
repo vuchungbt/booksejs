@@ -49,7 +49,9 @@ const upload = multer({
 // Set up the upload fields
 const uploadFields = upload.fields([
   { name: 'cover', maxCount: 1 },
-  { name: 'additionalImages', maxCount: 2 }
+  { name: 'additionalImages', maxCount: 2 },
+  { name: 'amazonKDPImage', maxCount: 1 },
+  { name: 'googlePlayBooksImage', maxCount: 1 }
 ]);
 
 // @desc    Get all books
@@ -141,7 +143,9 @@ router.post('/', uploadFields, async (req, res) => {
       publicationDate,
       stock,
       isbn,
-      featured
+      featured,
+      'amazonKDP.link': amazonKDPLink,
+      'googlePlayBooks.link': googlePlayBooksLink
     } = req.body;
     
     // Create book
@@ -156,7 +160,15 @@ router.post('/', uploadFields, async (req, res) => {
       publicationDate,
       stock,
       isbn,
-      featured: featured === 'on'
+      featured: featured === 'on',
+      amazonKDP: {
+        link: amazonKDPLink || '',
+        image: '/images/books/amz_default.png'
+      },
+      googlePlayBooks: {
+        link: googlePlayBooksLink || '',
+        image: '/images/books/gg_default.png'
+      }
     });
     
     // Add cover if uploaded
@@ -171,6 +183,18 @@ router.post('/', uploadFields, async (req, res) => {
         file => `/uploads/books/${file.filename}`
       );
       book.images = additionalImages;
+    }
+    
+    // Add Amazon KDP image if uploaded
+    if (req.files && req.files.amazonKDPImage && req.files.amazonKDPImage.length > 0) {
+      const amazonImagePath = `/uploads/books/${req.files.amazonKDPImage[0].filename}`;
+      book.amazonKDP.image = amazonImagePath;
+    }
+    
+    // Add Google Play Books image if uploaded
+    if (req.files && req.files.googlePlayBooksImage && req.files.googlePlayBooksImage.length > 0) {
+      const googleImagePath = `/uploads/books/${req.files.googlePlayBooksImage[0].filename}`;
+      book.googlePlayBooks.image = googleImagePath;
     }
     
     await book.save();
@@ -230,7 +254,9 @@ router.put('/:id', uploadFields, async (req, res) => {
       stock,
       isbn,
       featured,
-      deleteImages
+      deleteImages,
+      'amazonKDP.link': amazonKDPLink,
+      'googlePlayBooks.link': googlePlayBooksLink
     } = req.body;
     
     const book = await Book.findById(req.params.id);
@@ -252,6 +278,13 @@ router.put('/:id', uploadFields, async (req, res) => {
     book.stock = stock;
     book.isbn = isbn;
     book.featured = featured === 'on';
+    
+    // Update platform links
+    if (!book.amazonKDP) book.amazonKDP = { link: '', image: '/images/books/amz_default.png' };
+    if (!book.googlePlayBooks) book.googlePlayBooks = { link: '', image: '/images/books/gg_default.png' };
+    
+    book.amazonKDP.link = amazonKDPLink || '';
+    book.googlePlayBooks.link = googlePlayBooksLink || '';
     
     // Update cover if uploaded
     if (req.files && req.files.cover && req.files.cover.length > 0) {
@@ -297,6 +330,34 @@ router.put('/:id', uploadFields, async (req, res) => {
       // Ensure we don't exceed 3 images total
       const totalImages = [...book.images, ...additionalImages].slice(0, 3);
       book.images = totalImages;
+    }
+    
+    // Update Amazon KDP image if uploaded
+    if (req.files && req.files.amazonKDPImage && req.files.amazonKDPImage.length > 0) {
+      // Delete old Amazon image if exists and it's not default
+      if (book.amazonKDP.image && book.amazonKDP.image !== '/images/books/amz_default.png') {
+        const oldImagePath = path.join(__dirname, '../../public', book.amazonKDP.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      
+      const amazonImagePath = `/uploads/books/${req.files.amazonKDPImage[0].filename}`;
+      book.amazonKDP.image = amazonImagePath;
+    }
+    
+    // Update Google Play Books image if uploaded
+    if (req.files && req.files.googlePlayBooksImage && req.files.googlePlayBooksImage.length > 0) {
+      // Delete old Google image if exists and it's not default
+      if (book.googlePlayBooks.image && book.googlePlayBooks.image !== '/images/books/gg_default.png') {
+        const oldImagePath = path.join(__dirname, '../../public', book.googlePlayBooks.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      
+      const googleImagePath = `/uploads/books/${req.files.googlePlayBooksImage[0].filename}`;
+      book.googlePlayBooks.image = googleImagePath;
     }
     
     await book.save();

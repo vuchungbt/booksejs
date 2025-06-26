@@ -65,6 +65,27 @@ const BookSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // External purchase platforms
+  amazonKDP: {
+    link: {
+      type: String,
+      default: ''
+    },
+    image: {
+      type: String,
+      default: '/images/books/amz_default.png'
+    }
+  },
+  googlePlayBooks: {
+    link: {
+      type: String,
+      default: ''
+    },
+    image: {
+      type: String,
+      default: '/images/books/gg_default.png'
+    }
+  },
   ratings: [
     {
       user: {

@@ -253,6 +253,63 @@
   </div>
 </section>
 
+<!-- External Purchase Platforms -->
+<section class="py-4 bg-white border-top">
+  <div class="container">
+    <h4 class="mb-3">Mua sách trên các nền tảng khác</h4>
+    <div class="row g-3">
+      <!-- Amazon KDP -->
+      <% if (book.amazonKDP && book.amazonKDP.link && book.amazonKDP.link.trim() !== '') { %>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+              <div class="me-3">
+                <img src="<%= book.amazonKDP.image %>" alt="Amazon KDP" class="platform-logo">
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="mb-1">Amazon Kindle</h6>
+                <p class="text-muted small mb-2">Đọc ngay trên thiết bị Kindle hoặc ứng dụng Kindle</p>
+                <a href="<%= book.amazonKDP.link %>" target="_blank" class="btn btn-sm btn-outline-warning">
+                  <i class="fab fa-amazon me-1"></i> Mua trên Amazon
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- Google Play Books -->
+      <% if (book.googlePlayBooks && book.googlePlayBooks.link && book.googlePlayBooks.link.trim() !== '') { %>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+              <div class="me-3">
+                <img src="<%= book.googlePlayBooks.image %>" alt="Google Play Books" class="platform-logo">
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="mb-1">Google Play Books</h6>
+                <p class="text-muted small mb-2">Đọc trên mọi thiết bị với Google Play Books</p>
+                <a href="<%= book.googlePlayBooks.link %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                  <i class="fab fa-google-play me-1"></i> Mua trên Google Play
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- Message when no external links available -->
+      <% if ((!book.amazonKDP || !book.amazonKDP.link || book.amazonKDP.link.trim() === '') && (!book.googlePlayBooks || !book.googlePlayBooks.link || book.googlePlayBooks.link.trim() === '')) { %>
+        <div class="col-12">
+          <div class="text-center py-3">
+            <p class="text-muted mb-0">Sách này hiện chỉ có sẵn tại cửa hàng của chúng tôi</p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
 <!-- Related Books -->
 <section class="py-5 bg-light">
   <div class="container">
@@ -376,6 +433,14 @@
   .star-rating .star-input label:hover,
   .star-rating .star-input label:hover ~ label {
     color: gold;
+  }
+  
+  /* Platform logos */
+  .platform-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 8px;
   }
 </style>
 

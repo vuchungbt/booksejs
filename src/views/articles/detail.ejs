@@ -1,0 +1,127 @@
+<!-- Article Detail Page -->
+<article class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Article Header -->
+        <header class="mb-4">
+          <h1 class="display-6 fw-bold mb-3"><%= article.title %></h1>
+          
+          <!-- Article Meta -->
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-4 text-muted">
+            <div class="d-flex align-items-center">
+              <img src="<%= article.author.avatar || '/images/avatars/default-avatar.png' %>" 
+                   alt="<%= article.author.name %>" 
+                   class="rounded-circle me-2" 
+                   width="30" height="30">
+              <span><%= article.author.name %></span>
+            </div>
+            <span>•</span>
+            <div>
+              <i class="fas fa-calendar"></i>
+              <%= new Date(article.publishedAt || article.createdAt).toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) %>
+            </div>
+            <span>•</span>
+            <div>
+              <i class="fas fa-eye"></i>
+              <%= article.views %> lượt xem
+            </div>
+          </div>
+        </header>
+
+        <!-- Featured Image -->
+        <% if (article.featuredImage) { %>
+          <div class="mb-4">
+            <img src="<%= article.featuredImage %>" 
+                 alt="<%= article.title %>" 
+                 class="img-fluid rounded shadow-sm w-100" 
+                 style="max-height: 400px; object-fit: cover;">
+          </div>
+        <% } %>
+
+        <!-- Article Excerpt -->
+        <% if (article.excerpt) { %>
+          <div class="alert alert-light border-start border-primary border-4 mb-4">
+            <p class="lead mb-0 fst-italic"><%= article.excerpt %></p>
+          </div>
+        <% } %>
+
+        <!-- Article Content -->
+        <div class="article-content">
+          <%- article.content %>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+  
+  .article-content h1,
+  .article-content h2,
+  .article-content h3,
+  .article-content h4,
+  .article-content h5,
+  .article-content h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .article-content p {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+  }
+  
+  .article-content blockquote {
+    border-left: 4px solid #0d6efd;
+    padding-left: 1rem;
+    margin: 2rem 0;
+    font-style: italic;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+  }
+  
+  .article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+  }
+  
+  .article-content pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+  }
+  
+  .article-content code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+  
+  .article-content ul,
+  .article-content ol {
+    padding-left: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .article-content li {
+    margin-bottom: 0.5rem;
+  }
+</style>
+
+ 

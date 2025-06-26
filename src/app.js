@@ -20,6 +20,7 @@ import orderRoutes from './routes/orders.js';
 import adminRoutes from './routes/admin/index.js';
 import authorRoutes from './routes/author/index.js';
 import authorsRoutes from './routes/public/authors.js';
+import articlesRoutes from './routes/articles.js';
 
 // Import middleware
 import { debugSession, debugLogin } from './middleware/debug.js';
@@ -107,6 +108,7 @@ app.use('/orders', orderRoutes);
 app.use('/admin', adminRoutes);
 app.use('/author', authorRoutes);
 app.use('/authors', authorsRoutes);
+app.use('/articles', articlesRoutes);
 
 // 404 page
 app.use((req, res) => {

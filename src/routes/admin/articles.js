@@ -216,7 +216,11 @@ router.put('/:id', upload.single('featuredImage'), async (req, res) => {
       relatedBooks,
       tags,
       status,
-      featured
+      featured,
+      createdAt,
+      updatedAt,
+      views,
+      publishedAt
     } = req.body;
     
     const article = await Article.findById(req.params.id);
@@ -242,6 +246,23 @@ router.put('/:id', upload.single('featuredImage'), async (req, res) => {
     article.status = status || 'draft';
     article.featured = featured === 'on';
     
+    // Update timestamps and views if provided
+    if (createdAt) {
+      article.createdAt = new Date(createdAt);
+    }
+    if (updatedAt) {
+      article.updatedAt = new Date(updatedAt);
+    }
+    if (views !== undefined && views !== '') {
+      article.views = parseInt(views, 10) || 0;
+    }
+    if (publishedAt) {
+      article.publishedAt = new Date(publishedAt);
+    } else if (publishedAt === '') {
+      // If publishedAt is empty string, set to null
+      article.publishedAt = null;
+    }
+    
     // Update featured image if uploaded
     if (req.file) {
       // Delete old image if exists
@@ -255,7 +276,8 @@ router.put('/:id', upload.single('featuredImage'), async (req, res) => {
       article.featuredImage = `/uploads/articles/${req.file.filename}`;
     }
     
-    await article.save();
+    // Save with manual updatedAt control
+    await article.save({ timestamps: false });
     
     req.flash('success_msg', 'Cập nhật bài viết thành công');
     res.redirect('/admin/articles');

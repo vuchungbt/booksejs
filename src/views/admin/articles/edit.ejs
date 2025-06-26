@@ -84,16 +84,38 @@
               </button>
             </div>
 
-            <!-- Article Info -->
+            <!-- Editable Article Info -->
             <div class="mt-3 pt-3 border-top">
-              <small class="text-muted">
-                <div><strong>Ngày tạo:</strong> <%= new Date(article.createdAt).toLocaleDateString('vi-VN') %></div>
-                <div><strong>Cập nhật:</strong> <%= new Date(article.updatedAt).toLocaleDateString('vi-VN') %></div>
-                <div><strong>Lượt xem:</strong> <%= article.views %></div>
-                <% if (article.publishedAt) { %>
-                  <div><strong>Xuất bản:</strong> <%= new Date(article.publishedAt).toLocaleDateString('vi-VN') %></div>
-                <% } %>
-              </small>
+              <h6 class="text-muted mb-3">Thông tin bài viết</h6>
+              
+              <!-- Created Date -->
+              <div class="form-group">
+                <label for="createdAt">Ngày tạo</label>
+                <input type="datetime-local" class="form-control" id="createdAt" name="createdAt" 
+                       value="<%= new Date(article.createdAt).toISOString().slice(0, 16) %>">
+              </div>
+
+              <!-- Updated Date -->
+              <div class="form-group">
+                <label for="updatedAt">Cập nhật</label>
+                <input type="datetime-local" class="form-control" id="updatedAt" name="updatedAt" 
+                       value="<%= new Date(article.updatedAt).toISOString().slice(0, 16) %>">
+              </div>
+
+              <!-- Views -->
+              <div class="form-group">
+                <label for="views">Lượt xem</label>
+                <input type="number" class="form-control" id="views" name="views" 
+                       value="<%= article.views %>" min="0">
+              </div>
+
+              <!-- Published Date -->
+              <div class="form-group">
+                <label for="publishedAt">Xuất bản</label>
+                <input type="datetime-local" class="form-control" id="publishedAt" name="publishedAt" 
+                       value="<%= article.publishedAt ? new Date(article.publishedAt).toISOString().slice(0, 16) : '' %>">
+                <small class="form-text text-muted">Để trống nếu chưa xuất bản</small>
+              </div>
             </div>
           </div>
         </div>

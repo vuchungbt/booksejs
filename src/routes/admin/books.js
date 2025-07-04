@@ -139,6 +139,7 @@ router.post('/', uploadFields, async (req, res) => {
       category,
       description,
       price,
+      discount,
       pages,
       publicationDate,
       stock,
@@ -156,6 +157,7 @@ router.post('/', uploadFields, async (req, res) => {
       category,
       description,
       price,
+      discount: discount || 0,
       pages,
       publicationDate,
       stock,
@@ -249,6 +251,7 @@ router.put('/:id', uploadFields, async (req, res) => {
       category,
       description,
       price,
+      discount,
       pages,
       publicationDate,
       stock,
@@ -273,6 +276,7 @@ router.put('/:id', uploadFields, async (req, res) => {
     book.category = category;
     book.description = description;
     book.price = price;
+    book.discount = discount || 0;
     book.pages = pages;
     book.publicationDate = publicationDate;
     book.stock = stock;

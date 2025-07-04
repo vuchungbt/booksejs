@@ -16,7 +16,7 @@
       <!-- Book Images Gallery -->
       <div class="col-md-4 mb-4 mb-md-0">
         <div class="position-relative mb-3">
-          <img src="<%= book.images && book.images.length > 0 ? book.images[0] : book.cover %>" 
+          <img src="<%= book.cover.includes('/uploads/') ? book.cover : (book.images && book.images.length > 0 ? book.images[0] : book.cover) %>" 
                alt="<%= book.title %>" 
                class="img-fluid rounded shadow-sm main-book-image" 
                id="main-book-image">
@@ -31,8 +31,18 @@
         <!-- Thumbnail images -->
         <div class="row g-2">
           <% 
-            // Use images array if it exists, otherwise create an array with just the cover
-            const allImages = book.images && book.images.length > 0 ? book.images : [book.cover];
+            // Priority: if cover is an uploaded image, use it first
+            let allImages;
+            if (book.cover.includes('/uploads/')) {
+              // Use cover as main image and add additional images if any
+              const additionalImages = book.images && book.images.length > 0 && !book.images.some(img => img.includes('/images/books/default-book')) 
+                ? book.images.filter(img => img !== book.cover) 
+                : [];
+              allImages = [book.cover, ...additionalImages];
+            } else {
+              // Fallback to original logic
+              allImages = book.images && book.images.length > 0 ? book.images : [book.cover];
+            }
             // Limit to 4 images max
             const displayImages = allImages.slice(0, 4);
           %>

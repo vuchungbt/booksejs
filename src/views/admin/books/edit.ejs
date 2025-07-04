@@ -129,8 +129,14 @@
                     <label for="bookImage1" class="form-label">Ảnh phụ 1</label>
                     <input type="file" class="form-control" id="bookImage1" name="additionalImages" accept="image/*">
                     <div class="mt-2">
-                      <% if (book.images && book.images.length > 0) { %>
-                        <img id="image1Preview" src="<%= book.images[0] %>" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+                      <% 
+                        // Get first uploaded image (not default)
+                        const uploadedImages = book.images && book.images.length > 0 
+                          ? book.images.filter(img => img.includes('/uploads/')) 
+                          : [];
+                      %>
+                      <% if (uploadedImages.length > 0) { %>
+                        <img id="image1Preview" src="<%= uploadedImages[0] %>" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                       <% } else { %>
                         <img id="image1Preview" src="/images/books/default-book.png" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                       <% } %>
@@ -142,8 +148,8 @@
                     <label for="bookImage2" class="form-label">Ảnh phụ 2</label>
                     <input type="file" class="form-control" id="bookImage2" name="additionalImages" accept="image/*">
                     <div class="mt-2">
-                      <% if (book.images && book.images.length > 1) { %>
-                        <img id="image2Preview" src="<%= book.images[1] %>" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+                      <% if (uploadedImages.length > 1) { %>
+                        <img id="image2Preview" src="<%= uploadedImages[1] %>" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                       <% } else { %>
                         <img id="image2Preview" src="/images/books/default-book.png" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                       <% } %>
@@ -156,23 +162,50 @@
               <div class="mt-3">
                 <h6 class="mb-2">Ảnh hiện tại</h6>
                 <div class="row">
-                  <% if (book.images && book.images.length > 0) { %>
-                    <% book.images.forEach((image, index) => { %>
+                  <% 
+                    // Only show uploaded images, not default ones
+                    const currentUploadedImages = book.images && book.images.length > 0 
+                      ? book.images.filter(img => img.includes('/uploads/'))
+                      : [];
+                  %>
+                  <% if (currentUploadedImages.length > 0) { %>
+                    <% currentUploadedImages.forEach((image, index) => { %>
                       <div class="col-4 mb-2">
                         <div class="position-relative">
                           <img src="<%= image %>" alt="Ảnh sách <%= index + 1 %>" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
                           <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" id="deleteImage<%= index %>" name="deleteImages" value="<%= index %>">
-                            <label class="form-check-label small" for="deleteImage<%= index %>">Xóa</label>
+                            <% 
+                              // Get original index in book.images array for deletion
+                              const originalIndex = book.images.indexOf(image);
+                            %>
+                            <input class="form-check-input" type="checkbox" id="deleteImage<%= originalIndex %>" name="deleteImages" value="<%= originalIndex %>">
+                            <label class="form-check-label small" for="deleteImage<%= originalIndex %>">Xóa</label>
                           </div>
                         </div>
                       </div>
                     <% }); %>
                   <% } else { %>
                     <div class="col-12">
-                      <p class="text-muted small">Không có ảnh phụ</p>
+                      <p class="text-muted small">Chưa có ảnh phụ được upload</p>
                     </div>
                   <% } %>
+                </div>
+                
+                <!-- Show cover image info -->
+                <div class="mt-3">
+                  <h6 class="mb-2">Ảnh bìa chính</h6>
+                  <div class="d-flex align-items-center">
+                    <img src="<%= book.cover %>" alt="Ảnh bìa" class="img-thumbnail me-2" style="width: 60px; height: 60px; object-fit: cover;">
+                    <div>
+                      <% if (book.cover.includes('/uploads/')) { %>
+                        <span class="badge bg-success">Đã upload</span>
+                        <small class="d-block text-muted"><%= book.cover %></small>
+                      <% } else { %>
+                        <span class="badge bg-secondary">Ảnh mặc định</span>
+                        <small class="d-block text-muted">Chưa upload ảnh bìa</small>
+                      <% } %>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -129,17 +129,14 @@
                     <label for="bookImage1" class="form-label">Ảnh phụ 1</label>
                     <input type="file" class="form-control" id="bookImage1" name="additionalImages" accept="image/*">
                     <div class="mt-2">
-                      <% 
-                        // Get first uploaded image (not default)
-                        const uploadedImages = book.images && book.images.length > 0 
-                          ? book.images.filter(img => img.includes('/uploads/')) 
-                          : [];
-                      %>
-                      <% if (uploadedImages.length > 0) { %>
-                        <img id="image1Preview" src="<%= uploadedImages[0] %>" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
-                      <% } else { %>
-                        <img id="image1Preview" src="/images/books/default-book.png" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
-                      <% } %>
+                                              <% 
+                          // Image 1 = First additional image
+                          let image1Src = "/images/books/default-book.png";
+                          if (book.images && book.images.length > 0 && book.images[0] && book.images[0].includes('/uploads/')) {
+                            image1Src = book.images[0];
+                          }
+                        %>
+                        <img id="image1Preview" src="<%= image1Src %>" alt="Ảnh phụ 1" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                     </div>
                   </div>
                   
@@ -147,13 +144,16 @@
                   <div class="col-6 mb-3">
                     <label for="bookImage2" class="form-label">Ảnh phụ 2</label>
                     <input type="file" class="form-control" id="bookImage2" name="additionalImages" accept="image/*">
-                    <div class="mt-2">
-                      <% if (uploadedImages.length > 1) { %>
-                        <img id="image2Preview" src="<%= uploadedImages[1] %>" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
-                      <% } else { %>
-                        <img id="image2Preview" src="/images/books/default-book.png" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
-                      <% } %>
-                    </div>
+                                          <div class="mt-2">
+                        <% 
+                          // Image 2 = Second additional image
+                          let image2Src = "/images/books/default-book.png";
+                          if (book.images && book.images.length > 1 && book.images[1] && book.images[1].includes('/uploads/')) {
+                            image2Src = book.images[1];
+                          }
+                        %>
+                        <img id="image2Preview" src="<%= image2Src %>" alt="Ảnh phụ 2" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+                      </div>
                   </div>
                 </div>
               </div>

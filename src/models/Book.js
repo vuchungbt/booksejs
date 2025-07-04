@@ -126,8 +126,9 @@ BookSchema.pre('save', function(next) {
 
 // Add default images when there are none
 BookSchema.pre('save', function(next) {
-  // If images array is empty, set default images
-  if (!this.images || this.images.length === 0) {
+  // Only set default images if images array is empty AND we're creating a new document
+  // Don't override existing images with uploads
+  if (this.isNew && (!this.images || this.images.length === 0)) {
     this.images = [
       '/images/books/default-book.png',
       '/images/books/default-book-1.png',

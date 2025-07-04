@@ -130,10 +130,9 @@ export const getBookDetails = async (req, res) => {
       return res.redirect('/books');
     }
 
-    // If book doesn't have slug, generate one
+    // If book doesn't have slug, generate one (but don't save to avoid triggering pre-save hooks)
     if (!book.slug) {
       book.slug = slugify(book.title, { lower: true });
-      await book.save();
     }
 
     console.log(`Found book: ${book.title} (${book._id})`);

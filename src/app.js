@@ -98,6 +98,8 @@ app.set('layout', 'layouts/main');
 
 // Set up static files
 app.use(express.static(path.join(__dirname, 'public')));
+// Serve uploads directory specifically
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Routes
 app.use('/', indexRoutes);

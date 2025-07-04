@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Book from './src/models/Book.js';
 
-mongoose.connect('mongodb://localhost:27017/bookstore', {
+mongoose.connect('mongodb://localhost:27017/bookstore1', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(async () => {

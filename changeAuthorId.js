@@ -24,40 +24,47 @@ mongoose.connect('mongodb://localhost:27017/bookstore1', {
     // 2. Check if new ID already exists
     const existingAuthor = await User.findById(newAuthorId);
     if (existingAuthor) {
-      console.log(`⚠️  Author với ID mới đã tồn tại: ${existingAuthor.name}`);
-      console.log('Bạn có muốn merge 2 authors này không? (Y/N)');
-      // For safety, we'll exit here
-      console.log('Script dừng để tránh ghi đè. Hãy kiểm tra và chạy lại nếu chắc chắn.');
-      process.exit(1);
+      console.log(`⚠️  Author với ID mới đã tồn tại: ${existingAuthor.name} (${existingAuthor.email})`);
+      console.log('🔄 Sẽ merge 2 authors: chỉ cập nhật references và xóa author cũ');
+      
+      // Skip creating new author, go directly to updating books
+    } else {
+      // 3. Save original data before changing
+      const originalEmail = oldAuthor.email;
+      const authorData = oldAuthor.toObject();
+      delete authorData._id; // Remove old _id
+      
+      // 4. Temporarily change old author's email to avoid duplicate key error
+      const tempEmail = `temp_${Date.now()}_${originalEmail}`;
+      await User.findByIdAndUpdate(oldAuthorId, { email: tempEmail });
+      console.log(`🔄 Tạm thời đổi email cũ thành: ${tempEmail}`);
+      
+      // 5. Create new author document with new ID and original email
+      const newAuthor = new User({
+        _id: new mongoose.Types.ObjectId(newAuthorId),
+        ...authorData,
+        email: originalEmail // Keep original email
+      });
+      
+      // 6. Save new author
+      await newAuthor.save();
+      console.log(`✅ Đã tạo author mới với ID: ${newAuthorId}`);
     }
     
-    // 3. Create new author document with new ID
-    const authorData = oldAuthor.toObject();
-    delete authorData._id; // Remove old _id
-    
-    const newAuthor = new User({
-      _id: new mongoose.Types.ObjectId(newAuthorId),
-      ...authorData
-    });
-    
-    // 4. Save new author (no transaction needed for standalone MongoDB)
-    await newAuthor.save();
-    console.log(`✅ Đã tạo author mới với ID: ${newAuthorId}`);
-    
-    // 5. Update all books that reference the old author
+    // 7. Update all books that reference the old author
     const updateResult = await Book.updateMany(
       { author: oldAuthorId },
       { $set: { author: newAuthorId } }
     );
     console.log(`✅ Đã cập nhật ${updateResult.modifiedCount} sách sang author ID mới`);
     
-    // 6. Delete old author
+    // 8. Delete old author
     await User.findByIdAndDelete(oldAuthorId);
     console.log(`✅ Đã xóa author cũ với ID: ${oldAuthorId}`);
     
     console.log('🎉 HOÀN THÀNH! Đã thay đổi ID author thành công');
     
-    // 7. Verify the change
+    // 9. Verify the change
     console.log('\n=== KIỂM TRA KẾT QUẢ ===');
     const verifyAuthor = await User.findById(newAuthorId);
     console.log(`Author mới: ${verifyAuthor ? verifyAuthor.name : 'KHÔNG TÌM THẤY'}`);

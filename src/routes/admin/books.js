@@ -327,8 +327,11 @@ router.put('/:id', uploadFields, async (req, res) => {
         file => `/uploads/books/${file.filename}`
       );
       
-      // Ensure we don't exceed 3 images total
-      const totalImages = [...book.images, ...additionalImages].slice(0, 3);
+      // Remove default images and keep only uploaded ones
+      const existingUploadedImages = book.images.filter(img => img.includes('/uploads/'));
+      
+      // Combine existing uploaded images with new ones, max 2 additional images
+      const totalImages = [...existingUploadedImages, ...additionalImages].slice(0, 2);
       book.images = totalImages;
     }
     

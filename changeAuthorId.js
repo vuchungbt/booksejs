@@ -40,39 +40,22 @@ mongoose.connect('mongodb://localhost:27017/bookstore1', {
       ...authorData
     });
     
-    // 4. Start transaction for safety
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    // 4. Save new author (no transaction needed for standalone MongoDB)
+    await newAuthor.save();
+    console.log(`✅ Đã tạo author mới với ID: ${newAuthorId}`);
     
-    try {
-      // Save new author
-      await newAuthor.save({ session });
-      console.log(`✅ Đã tạo author mới với ID: ${newAuthorId}`);
-      
-      // 5. Update all books that reference the old author
-      const updateResult = await Book.updateMany(
-        { author: oldAuthorId },
-        { $set: { author: newAuthorId } },
-        { session }
-      );
-      console.log(`✅ Đã cập nhật ${updateResult.modifiedCount} sách sang author ID mới`);
-      
-      // 6. Delete old author
-      await User.findByIdAndDelete(oldAuthorId, { session });
-      console.log(`✅ Đã xóa author cũ với ID: ${oldAuthorId}`);
-      
-      // Commit transaction
-      await session.commitTransaction();
-      console.log('🎉 HOÀN THÀNH! Đã thay đổi ID author thành công');
-      
-    } catch (error) {
-      // Rollback transaction
-      await session.abortTransaction();
-      console.error('❌ Lỗi trong quá trình transaction, đã rollback:', error);
-      throw error;
-    } finally {
-      session.endSession();
-    }
+    // 5. Update all books that reference the old author
+    const updateResult = await Book.updateMany(
+      { author: oldAuthorId },
+      { $set: { author: newAuthorId } }
+    );
+    console.log(`✅ Đã cập nhật ${updateResult.modifiedCount} sách sang author ID mới`);
+    
+    // 6. Delete old author
+    await User.findByIdAndDelete(oldAuthorId);
+    console.log(`✅ Đã xóa author cũ với ID: ${oldAuthorId}`);
+    
+    console.log('🎉 HOÀN THÀNH! Đã thay đổi ID author thành công');
     
     // 7. Verify the change
     console.log('\n=== KIỂM TRA KẾT QUẢ ===');

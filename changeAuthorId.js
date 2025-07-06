@@ -8,8 +8,8 @@ mongoose.connect('mongodb://localhost:27017/bookstore', {
 }).then(async () => {
   console.log('Connected to MongoDB');
   
-  const oldAuthorId = '686a295ed8987de86954c1ff';
-  const newAuthorId = '68678de5c0de8d2f43bcffd4';
+  const oldAuthorId = '686a2b9f8c5ae5a000196e28';
+  const newAuthorId = '6852d73afd39383f5bb95dc1';
   
   try {
     // 1. Find the author to be changed

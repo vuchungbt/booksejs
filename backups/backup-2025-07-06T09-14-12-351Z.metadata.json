@@ -1,8 +1,0 @@
-{
-  "name": "backup-2025-07-06T09-14-12-351Z",
-  "description": "Backup được tạo tự động",
-  "database": "bookstore",
-  "created": "2025-07-06T09:14:12.419Z",
-  "size": 24968,
-  "format": "archive"
-}

@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Backup files
+backups/
+
+# Public files and uploads
+src/public/images/
+src/public/uploads/

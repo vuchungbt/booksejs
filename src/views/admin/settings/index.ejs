@@ -22,6 +22,11 @@
             <i class="fas fa-share-alt me-1"></i> Mạng xã hội
           </button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab" aria-controls="backup" aria-selected="false">
+            <i class="fas fa-database me-1"></i> Backup/Restore
+          </button>
+        </li>
       </ul>
     </div>
     
@@ -201,6 +206,93 @@
               </div>
             </div>
           </div>
+          
+          <!-- Backup/Restore Database Tab -->
+          <div class="tab-pane fade" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+            <div class="mb-4">
+              <h5 class="text-primary">Sao lưu và khôi phục cơ sở dữ liệu</h5>
+              
+              <!-- Backup Section -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="fas fa-download me-1"></i> Sao lưu cơ sở dữ liệu
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <p class="text-muted mb-3">
+                    Tạo bản sao lưu hoàn chỉnh của cơ sở dữ liệu MongoDB. Bản sao lưu sẽ được lưu trữ trong thư mục backups.
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="backupName" class="form-label">Tên file backup</label>
+                        <input type="text" class="form-control" id="backupName" name="backupName" 
+                               placeholder="Để trống sẽ tự động tạo tên theo thời gian">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="backupDescription" class="form-label">Mô tả (tùy chọn)</label>
+                        <input type="text" class="form-control" id="backupDescription" name="backupDescription" 
+                               placeholder="Ghi chú về bản backup này">
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary" onclick="createBackup()">
+                    <i class="fas fa-download me-1"></i> Tạo backup
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Restore Section -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="fas fa-upload me-1"></i> Khôi phục cơ sở dữ liệu
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    <strong>Cảnh báo:</strong> Việc khôi phục sẽ ghi đè lên dữ liệu hiện tại. Hãy chắc chắn bạn đã tạo backup trước khi thực hiện.
+                  </div>
+                  <form id="restoreForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                      <label for="restoreFile" class="form-label">Chọn file backup</label>
+                      <input type="file" class="form-control" id="restoreFile" name="restoreFile" accept=".archive,.gz,.bson">
+                      <div class="form-text">Chấp nhận file .archive (khuyến nghị), .gz, .bson từ mongodump</div>
+                    </div>
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmRestore" name="confirmRestore" required>
+                        <label class="form-check-label text-danger" for="confirmRestore">
+                          Tôi hiểu rằng việc khôi phục sẽ ghi đè lên dữ liệu hiện tại
+                        </label>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-warning" onclick="restoreDatabase()">
+                      <i class="fas fa-upload me-1"></i> Khôi phục database
+                    </button>
+                  </form>
+                </div>
+              </div>
+              
+              <!-- Backup Files List -->
+              <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="fas fa-list me-1"></i> Danh sách file backup
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div id="backupsList">
+                    <p class="text-muted">Đang tải danh sách backup...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="text-end">
@@ -211,4 +303,165 @@
       </form>
     </div>
   </div>
-</div> 
+</div>
+
+<script>
+// Backup/Restore JavaScript Functions
+document.addEventListener('DOMContentLoaded', function() {
+  // Load backup list when page loads
+  loadBackupList();
+});
+
+function createBackup() {
+  const backupName = document.getElementById('backupName').value;
+  const backupDescription = document.getElementById('backupDescription').value;
+  
+  // Show loading
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang tạo backup...';
+  
+  fetch('/admin/settings/backup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ 
+      name: backupName, 
+      description: backupDescription 
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Backup tạo thành công!');
+      loadBackupList(); // Refresh backup list
+      document.getElementById('backupName').value = '';
+      document.getElementById('backupDescription').value = '';
+    } else {
+      alert('Lỗi tạo backup: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Có lỗi xảy ra: ' + error.message);
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-download me-1"></i> Tạo backup';
+  });
+}
+
+function restoreDatabase() {
+  const fileInput = document.getElementById('restoreFile');
+  const confirmRestore = document.getElementById('confirmRestore');
+  
+  if (!fileInput.files.length) {
+    alert('Vui lòng chọn file backup để khôi phục');
+    return;
+  }
+  
+  if (!confirmRestore.checked) {
+    alert('Vui lòng xác nhận bạn hiểu rằng việc khôi phục sẽ ghi đè lên dữ liệu hiện tại');
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('backupFile', fileInput.files[0]);
+  
+  // Show loading
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang khôi phục...';
+  
+  fetch('/admin/settings/restore', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Khôi phục database thành công!');
+      fileInput.value = '';
+      confirmRestore.checked = false;
+    } else {
+      alert('Lỗi khôi phục: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Có lỗi xảy ra: ' + error.message);
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-upload me-1"></i> Khôi phục database';
+  });
+}
+
+function loadBackupList() {
+  fetch('/admin/settings/backups')
+    .then(response => response.json())
+    .then(data => {
+      const backupsList = document.getElementById('backupsList');
+      if (data.success && data.backups.length > 0) {
+        let html = '<div class="table-responsive"><table class="table table-striped">';
+        html += '<thead><tr><th>Tên file</th><th>Định dạng</th><th>Kích thước</th><th>Thời gian</th><th>Hành động</th></tr></thead><tbody>';
+        
+        data.backups.forEach(backup => {
+          const formatBadge = backup.format === 'archive' ? 
+            '<span class="badge bg-success">Archive</span>' : 
+            '<span class="badge bg-warning">Directory</span>';
+          
+          html += `<tr>
+            <td>${backup.name}</td>
+            <td>${formatBadge}</td>
+            <td>${backup.size}</td>
+            <td>${backup.created}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-1" onclick="downloadBackup('${backup.name}')">
+                <i class="fas fa-download"></i> Tải về
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteBackup('${backup.name}')">
+                <i class="fas fa-trash"></i> Xóa
+              </button>
+            </td>
+          </tr>`;
+        });
+        
+        html += '</tbody></table></div>';
+        backupsList.innerHTML = html;
+      } else {
+        backupsList.innerHTML = '<p class="text-muted">Chưa có file backup nào</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      document.getElementById('backupsList').innerHTML = '<p class="text-danger">Lỗi tải danh sách backup</p>';
+    });
+}
+
+function downloadBackup(filename) {
+  window.open(`/admin/settings/download-backup/${filename}`, '_blank');
+}
+
+function deleteBackup(filename) {
+  if (confirm('Bạn có chắc chắn muốn xóa file backup này?')) {
+    fetch(`/admin/settings/delete-backup/${filename}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Xóa backup thành công!');
+        loadBackupList();
+      } else {
+        alert('Lỗi xóa backup: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra: ' + error.message);
+    });
+  }
+}
+</script> 

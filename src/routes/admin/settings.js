@@ -45,12 +45,20 @@ const storage = multer.diskStorage({
   }
 });
 
-// Set up file filter to accept only image files
+// Set up file filter to accept images and backup files
 const fileFilter = (req, file, cb) => {
-  // Accept images only
-  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|ico|ICO)$/)) {
-    req.fileValidationError = 'Chỉ chấp nhận file hình ảnh!';
-    return cb(new Error('Chỉ chấp nhận file hình ảnh!'), false);
+  // For backup/restore endpoints, accept backup files
+  if (req.route.path.includes('/restore')) {
+    if (!file.originalname.match(/\.(archive|gz|bson)$/i)) {
+      req.fileValidationError = 'Chỉ chấp nhận file backup (.archive, .gz, .bson)!';
+      return cb(new Error('Chỉ chấp nhận file backup (.archive, .gz, .bson)!'), false);
+    }
+  } else {
+    // For other endpoints, accept images only
+    if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|ico|ICO)$/)) {
+      req.fileValidationError = 'Chỉ chấp nhận file hình ảnh!';
+      return cb(new Error('Chỉ chấp nhận file hình ảnh!'), false);
+    }
   }
   cb(null, true);
 };
@@ -208,6 +216,131 @@ router.post('/', upload.fields([
     console.error('Settings update error:', error);
     req.flash('error_msg', 'Không thể cập nhật cài đặt: ' + error.message);
     res.redirect('/admin/settings');
+  }
+});
+
+// Backup/Restore Routes
+// @desc    Create database backup
+// @route   POST /admin/settings/backup
+// @access  Private/Admin
+router.post('/backup', async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const backupService = await import('../../services/backupService.js');
+    
+    const result = await backupService.default.createBackup(name, description);
+    
+    if (result.success) {
+      res.json({ success: true, message: 'Backup created successfully', filename: result.filename });
+    } else {
+      res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Backup error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi tạo backup: ' + error.message });
+  }
+});
+
+// @desc    Restore database from backup
+// @route   POST /admin/settings/restore
+// @access  Private/Admin
+router.post('/restore', upload.single('backupFile'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Vui lòng chọn file backup' });
+    }
+    
+    // Check file extension
+    const allowedExtensions = ['.archive', '.gz', '.bson'];
+    const fileExt = path.extname(req.file.originalname).toLowerCase();
+    
+    if (!allowedExtensions.includes(fileExt)) {
+      // Clean up uploaded file
+      try {
+        await fs.unlink(req.file.path);
+      } catch {}
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Định dạng file không hỗ trợ. Chỉ chấp nhận file .archive, .gz, .bson' 
+      });
+    }
+    
+    const backupService = await import('../../services/backupService.js');
+    const result = await backupService.default.restoreBackup(req.file.path);
+    
+    // Clean up uploaded file after processing
+    try {
+      await fs.unlink(req.file.path);
+    } catch (cleanupError) {
+      console.error('Error cleaning up uploaded file:', cleanupError);
+    }
+    
+    if (result.success) {
+      res.json({ success: true, message: 'Database restored successfully' });
+    } else {
+      res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Restore error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi khôi phục: ' + error.message });
+  }
+});
+
+// @desc    Get list of backup files
+// @route   GET /admin/settings/backups
+// @access  Private/Admin
+router.get('/backups', async (req, res) => {
+  try {
+    const backupService = await import('../../services/backupService.js');
+    const result = await backupService.default.getBackupList();
+    
+    if (result.success) {
+      res.json({ success: true, backups: result.backups });
+    } else {
+      res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Get backups error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi lấy danh sách backup: ' + error.message });
+  }
+});
+
+// @desc    Download backup file
+// @route   GET /admin/settings/download-backup/:filename
+// @access  Private/Admin
+router.get('/download-backup/:filename', async (req, res) => {
+  try {
+    const backupService = await import('../../services/backupService.js');
+    const result = await backupService.default.downloadBackup(req.params.filename);
+    
+    if (result.success) {
+      res.download(result.filePath, req.params.filename);
+    } else {
+      res.status(404).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Download backup error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi tải file backup: ' + error.message });
+  }
+});
+
+// @desc    Delete backup file
+// @route   DELETE /admin/settings/delete-backup/:filename
+// @access  Private/Admin
+router.delete('/delete-backup/:filename', async (req, res) => {
+  try {
+    const backupService = await import('../../services/backupService.js');
+    const result = await backupService.default.deleteBackup(req.params.filename);
+    
+    if (result.success) {
+      res.json({ success: true, message: 'Backup deleted successfully' });
+    } else {
+      res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Delete backup error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi xóa backup: ' + error.message });
   }
 });
 

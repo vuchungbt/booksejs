@@ -60,4 +60,14 @@ router.get('/contact', (req, res) => {
   });
 });
 
+// @desc    Delete user data page (public, no layout)
+// @route   GET /delete.html
+// @access  Public
+router.get('/delete.html', (req, res) => {
+  res.render('delete', {
+    title: 'Xóa dữ liệu người dùng',
+    layout: false
+  });
+});
+
 export default router;
